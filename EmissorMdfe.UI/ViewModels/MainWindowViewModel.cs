@@ -3,19 +3,20 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace EmissorMdfe.UI.ViewModels;
 
-// Define as páginas possíveis do nosso sistema
+// Adicionámos a página "Historico"
 public enum Page
 {
     Dashboard,
     Emissao,
     Veiculos,
-    Condutores
+    Condutores,
+    Historico
 }
 
 public partial class MainWindowViewModel : ViewModelBase
 {
     // ==========================================
-    // NAVEGAÇÃO E ESTADO DA TELA
+    // NAVEGAÇÃO E ESTADO DO ECRÃ
     // ==========================================
 
     [ObservableProperty]
@@ -23,16 +24,17 @@ public partial class MainWindowViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(IsWizardVisible))]
     [NotifyPropertyChangedFor(nameof(IsVeiculos))]
     [NotifyPropertyChangedFor(nameof(IsCondutores))]
-    private Page _paginaAtual = Page.Dashboard; // Começa no Dashboard
+    [NotifyPropertyChangedFor(nameof(IsHistorico))] // <- Novo
+    private Page _paginaAtual = Page.Dashboard;
 
-    // Propriedades booleanas para a interface esconder/mostrar as telas
     public bool IsDashboard => PaginaAtual == Page.Dashboard;
     public bool IsWizardVisible => PaginaAtual == Page.Emissao;
     public bool IsVeiculos => PaginaAtual == Page.Veiculos;
     public bool IsCondutores => PaginaAtual == Page.Condutores;
+    public bool IsHistorico => PaginaAtual == Page.Historico; // <- Novo
 
     // ==========================================
-    // CONTROLE DO WIZARD (EMISSÃO)
+    // CONTROLO DO WIZARD (EMISSÃO)
     // ==========================================
 
     [ObservableProperty]
@@ -59,6 +61,9 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [RelayCommand]
     private void AbrirCondutores() => PaginaAtual = Page.Condutores;
+
+    [RelayCommand] // <- Novo
+    private void AbrirHistorico() => PaginaAtual = Page.Historico;
 
     [RelayCommand]
     private void IniciarEmissao()
