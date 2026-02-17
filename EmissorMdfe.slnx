@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="EmissorMdfe.Core/EmissorMdfe.Core.csproj" />
+  <Project Path="EmissorMdfe.UI/EmissorMdfe.UI.csproj" />
+</Solution>
