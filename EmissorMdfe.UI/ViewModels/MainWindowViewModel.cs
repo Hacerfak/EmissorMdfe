@@ -6,12 +6,25 @@ using EmissorMdfe.Core.Services;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
+using System;
+using System.IO;
+using NFe.Servicos;
+using DFe.Classes.Flags;
+using DFe.Classes.Entidades;
+using NFe.Classes.Servicos.ConsultaCadastro;
+using NFe.Utils;
+using NFe.Classes.Informacoes.Identificacao.Tipos;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform.Storage;
 
 namespace EmissorMdfe.UI.ViewModels;
 
 public enum Page
 {
-    Dashboard, Emissao, Veiculos, Condutores, Historico
+    Dashboard, Emissao, Veiculos, Condutores, Historico, Configuracoes
 }
 
 public partial class MainWindowViewModel : ViewModelBase
@@ -67,12 +80,65 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private async Task SalvarCondutorAsync()
     {
-        if (string.IsNullOrWhiteSpace(NovoCondutor.Nome)) return;
+        if (NovoCondutor != null && !string.IsNullOrWhiteSpace(NovoCondutor.Nome))
+        {
+            await _dbService.SalvarCondutorAsync(NovoCondutor);
+            Condutores.Add(NovoCondutor);
+            IsModalCondutorAberto = false;
+        }
+    }
 
-        await _dbService.SalvarCondutorAsync(NovoCondutor);
-        Condutores.Add(NovoCondutor);
+    [RelayCommand]
+    private async Task SalvarConfiguracoesAsync()
+    {
+        try
+        {
+            // 1. FAZER UPLOAD (CÓPIA) DO CERTIFICADO PARA A PASTA SEGURA
+            if (!string.IsNullOrEmpty(CaminhoCertificado) && File.Exists(CaminhoCertificado))
+            {
+                // Encontra a nossa pasta do SQLite
+                var folder = Environment.SpecialFolder.LocalApplicationData;
+                var path = Environment.GetFolderPath(folder);
+                var appFolder = Path.Join(path, "EmissorMdfeCore", "Certificados");
 
-        IsModalCondutorAberto = false;
+                // Cria a pasta "Certificados" se ela ainda não existir
+                Directory.CreateDirectory(appFolder);
+
+                // Pega apenas o nome do arquivo (ex: "meucertificado.pfx")
+                var fileName = Path.GetFileName(CaminhoCertificado);
+                var destinationPath = Path.Join(appFolder, fileName);
+
+                // Copia apenas se o arquivo de origem for diferente do destino
+                if (CaminhoCertificado != destinationPath)
+                {
+                    File.Copy(CaminhoCertificado, destinationPath, overwrite: true);
+                    CaminhoCertificado = destinationPath; // Atualiza a variável para o novo caminho interno!
+                }
+            }
+
+            // 2. PREENCHER O MODELO PARA SALVAR NO BANCO
+            _configAtual.CaminhoCertificado = CaminhoCertificado;
+            _configAtual.SenhaCertificado = SenhaCertificado;
+            _configAtual.UfEmitente = UfSelecionada;
+            _configAtual.CnpjEmitente = CnpjEmitente;
+            _configAtual.RazaoSocialEmitente = RazaoSocialEmitente;
+            _configAtual.IeEmitente = IeEmitente;
+            _configAtual.LogradouroEmitente = LogradouroEmitente;
+            _configAtual.NumeroEmitente = NumeroEmitente;
+            _configAtual.BairroEmitente = BairroEmitente;
+            _configAtual.CepEmitente = CepEmitente;
+            _configAtual.CidadeEmitente = CidadeEmitente;
+
+            // 3. ENVIAR PARA O SQLITE
+            await _dbService.SalvarConfiguracaoAsync(_configAtual);
+
+            Console.WriteLine("Configurações Salvas com sucesso!");
+            PaginaAtual = Page.Dashboard; // Volta para o Dashboard
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao salvar configurações: {ex.Message}");
+        }
     }
 
     [ObservableProperty]
@@ -96,15 +162,35 @@ public partial class MainWindowViewModel : ViewModelBase
         _ = CarregarDadosAsync();
     }
 
+    private ConfiguracaoApp _configAtual = new();
+
     private async Task CarregarDadosAsync()
     {
         // Busca do SQLite
         var listaVeiculos = await _dbService.GetVeiculosAsync();
         var listaCondutores = await _dbService.GetCondutoresAsync();
+        var config = await _dbService.GetConfiguracaoAsync(); // NOVO
 
         // Atualiza a interface
         Veiculos = new ObservableCollection<Veiculo>(listaVeiculos);
         Condutores = new ObservableCollection<Condutor>(listaCondutores);
+
+        // NOVO: Se já existir configuração no banco, preenche a tela
+        if (config != null)
+        {
+            _configAtual = config;
+            CaminhoCertificado = config.CaminhoCertificado;
+            SenhaCertificado = config.SenhaCertificado;
+            UfSelecionada = config.UfEmitente;
+            CnpjEmitente = config.CnpjEmitente;
+            RazaoSocialEmitente = config.RazaoSocialEmitente;
+            IeEmitente = config.IeEmitente;
+            LogradouroEmitente = config.LogradouroEmitente;
+            NumeroEmitente = config.NumeroEmitente;
+            BairroEmitente = config.BairroEmitente;
+            CepEmitente = config.CepEmitente;
+            CidadeEmitente = config.CidadeEmitente;
+        }
     }
 
     // ==========================================
@@ -117,6 +203,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(IsVeiculos))]
     [NotifyPropertyChangedFor(nameof(IsCondutores))]
     [NotifyPropertyChangedFor(nameof(IsHistorico))]
+    [NotifyPropertyChangedFor(nameof(IsConfiguracoes))]
     private Page _paginaAtual = Page.Dashboard;
 
     public bool IsDashboard => PaginaAtual == Page.Dashboard;
@@ -199,6 +286,145 @@ public partial class MainWindowViewModel : ViewModelBase
         else if (PaginaAtual == Page.Emissao)
         {
             PaginaAtual = Page.Dashboard;
+        }
+    }
+
+    // ==========================================
+    // TELA DE CONFIGURAÇÕES (EMITENTE E CERTIFICADO)
+    // ==========================================
+
+    public bool IsConfiguracoes => PaginaAtual == Page.Configuracoes;
+
+    [RelayCommand] private void AbrirConfiguracoes() => PaginaAtual = Page.Configuracoes;
+
+    // Campos da Tela
+    [ObservableProperty] private string _caminhoCertificado = string.Empty;
+    [ObservableProperty] private string _senhaCertificado = string.Empty;
+    [ObservableProperty] private string _ufSelecionada = "SP";
+
+    // Lista de UFs para o ComboBox
+    public ObservableCollection<string> ListaUFs { get; } = new()
+    {
+        "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG",
+        "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"
+    };
+
+    // Dados extraídos/consultados
+    [ObservableProperty] private string _cnpjEmitente = string.Empty;
+    [ObservableProperty] private string _razaoSocialEmitente = string.Empty;
+    [ObservableProperty] private string _ieEmitente = string.Empty;
+    [ObservableProperty] private string _logradouroEmitente = string.Empty;
+    [ObservableProperty] private string _numeroEmitente = string.Empty;
+    [ObservableProperty] private string _bairroEmitente = string.Empty;
+    [ObservableProperty] private string _cepEmitente = string.Empty;
+    [ObservableProperty] private string _cidadeEmitente = string.Empty;
+
+    [RelayCommand]
+    private async Task ProcurarCertificadoAsync()
+    {
+        // Obtém a janela principal da aplicação para abrir o Dialog por cima dela
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            var window = desktop.MainWindow;
+            if (window == null) return;
+
+            // Abre a janela nativa do Windows/Linux/Mac para escolher o ficheiro
+            var files = await window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+            {
+                Title = "Selecione o Certificado Digital A1",
+                AllowMultiple = false,
+                FileTypeFilter = new[]
+                {
+                    new FilePickerFileType("Certificado PFX") { Patterns = new[] { "*.pfx", "*.p12" } },
+                    new FilePickerFileType("Todos os Arquivos") { Patterns = new[] { "*.*" } }
+                }
+            });
+
+            // Se o utilizador escolheu um ficheiro e não clicou em cancelar
+            if (files != null && files.Count > 0)
+            {
+                // Preenche a caixa de texto magicamente
+                CaminhoCertificado = files[0].Path.LocalPath;
+            }
+        }
+    }
+
+    [RelayCommand]
+    private void ConsultarSefaz()
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(CaminhoCertificado) || string.IsNullOrEmpty(SenhaCertificado))
+            {
+                Console.WriteLine("Informe o caminho e a senha do certificado.");
+                return;
+            }
+
+            // 1. Carrega o Certificado Digital (A1) usando o padrão .NET 9 / 10
+            var certificado = X509CertificateLoader.LoadPkcs12FromFile(CaminhoCertificado, SenhaCertificado);
+
+            // 2. Extrai o CNPJ de dentro do Certificado (Geralmente fica no Subject)
+            Match match = Regex.Match(certificado.Subject, @"([0-9]{14})");
+            if (match.Success)
+            {
+                CnpjEmitente = match.Groups[1].Value;
+            }
+            else
+            {
+                Console.WriteLine("Não foi possível encontrar o CNPJ no certificado.");
+                return;
+            }
+
+            // 3. Configura o Motor Zeus para a Consulta
+            var cfg = new ConfiguracaoServico
+            {
+                tpAmb = TipoAmbiente.Producao,
+                tpEmis = TipoEmissao.teNormal,
+                ProtocoloDeSeguranca = System.Net.SecurityProtocolType.Tls12,
+                cUF = (Estado)Enum.Parse(typeof(Estado), UfSelecionada),
+                VersaoLayout = VersaoServico.Versao400,
+                ModeloDocumento = ModeloDocumento.NFe,
+                VersaoNfeConsultaCadastro = VersaoServico.Versao400,
+                ValidarSchemas = false
+            };
+
+            // 4. Instancia o Serviço NFe do Zeus passando a config e o certificado no construtor
+            using var servicoSefaz = new ServicosNFe(cfg, certificado);
+
+            // 5. Faz a chamada WebService
+            var retornoSefaz = servicoSefaz.NfeConsultaCadastro(UfSelecionada, ConsultaCadastroTipoDocumento.Cnpj, CnpjEmitente);
+
+            // 6. Preenche a tela se a Sefaz retornar os dados
+            if (retornoSefaz != null && retornoSefaz.Retorno != null && retornoSefaz.Retorno.infCons != null)
+            {
+                // AQUI FOI CORRIGIDO: Como infCad é um objeto direto, apenas verificamos se não é nulo
+                if (retornoSefaz.Retorno.infCons.infCad != null)
+                {
+                    var dadosSefaz = retornoSefaz.Retorno.infCons.infCad;
+
+                    RazaoSocialEmitente = dadosSefaz.xNome ?? string.Empty;
+                    IeEmitente = dadosSefaz.IE ?? string.Empty;
+
+                    if (dadosSefaz.ender != null)
+                    {
+                        LogradouroEmitente = dadosSefaz.ender.xLgr ?? string.Empty;
+                        NumeroEmitente = dadosSefaz.ender.nro ?? string.Empty;
+                        BairroEmitente = dadosSefaz.ender.xBairro ?? string.Empty;
+                        CepEmitente = dadosSefaz.ender.CEP?.ToString() ?? string.Empty;
+                        CidadeEmitente = dadosSefaz.ender.xMun ?? string.Empty;
+                    }
+
+                    Console.WriteLine("Dados consultados com sucesso!");
+                }
+                else
+                {
+                    Console.WriteLine($"Sefaz retornou: {retornoSefaz.Retorno.infCons.xMotivo}");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao consultar SEFAZ: {ex.Message}");
         }
     }
 }

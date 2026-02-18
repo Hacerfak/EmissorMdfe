@@ -61,4 +61,24 @@ public class AppDatabaseService
         db.Condutores.Remove(condutor);
         await db.SaveChangesAsync();
     }
+
+    // =====================================
+    // CONFIGURAÇÕES GERAIS E EMITENTE
+    // =====================================
+    public async Task<ConfiguracaoApp?> GetConfiguracaoAsync()
+    {
+        using var db = new AppDbContext();
+        return await db.Configuracoes.FirstOrDefaultAsync();
+    }
+
+    public async Task SalvarConfiguracaoAsync(ConfiguracaoApp config)
+    {
+        using var db = new AppDbContext();
+        if (config.Id == 0)
+            db.Configuracoes.Add(config);
+        else
+            db.Configuracoes.Update(config);
+
+        await db.SaveChangesAsync();
+    }
 }

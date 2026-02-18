@@ -91,6 +91,18 @@
                                 FontWeight="{Binding IsCondutores, StringFormat='SemiBold|Normal'}" />
                         </StackPanel>
                     </Button>
+
+                    <Button Command="{Binding AbrirConfiguracoesCommand}" Classes="Flat"
+                        Margin="10, 5" HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Left" Padding="15, 10"
+                        Background="{Binding IsConfiguracoes, StringFormat='#EDE7F6|Transparent'}"
+                        Foreground="{Binding IsConfiguracoes, StringFormat='#673AB7|Black'}">
+                        <StackPanel Orientation="Horizontal" Spacing="15">
+                            <materialIcons:MaterialIcon Kind="Cog" Width="20" Height="20" />
+                            <TextBlock Text="Configurações" VerticalAlignment="Center"
+                                FontWeight="{Binding IsConfiguracoes, StringFormat='SemiBold|Normal'}" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </Border>
 
@@ -163,6 +175,152 @@
                                     CornerRadius="20" Margin="20,0,0,0" />
                             </StackPanel>
                         </Border>
+                    </StackPanel>
+
+                    <StackPanel IsVisible="{Binding IsConfiguracoes}" Spacing="20">
+                        <TextBlock Text="Configurações do Sistema" FontSize="28" FontWeight="Light"
+                            Foreground="#222222" />
+                        <TextBlock
+                            Text="Configure o certificado digital e os dados da sua empresa para emitir."
+                            FontSize="14" Foreground="Gray" Margin="0,-15,0,10" />
+
+                        <Border Background="White" CornerRadius="8" BoxShadow="0 4 15 0 #0A000000"
+                            Padding="30">
+                            <StackPanel Spacing="15">
+                                <TextBlock Text="1. Certificado Digital (A1)" FontWeight="Bold"
+                                    Foreground="#673AB7" FontSize="16" Margin="0,0,0,10" />
+
+                                <Grid ColumnDefinitions="*, 20, 200" RowDefinitions="Auto, Auto">
+                                    <StackPanel Grid.Row="0" Grid.Column="0">
+                                        <TextBlock Text="Caminho do Arquivo (.pfx)"
+                                            FontWeight="SemiBold" Foreground="#555555"
+                                            Margin="0,0,0,5" FontSize="13" />
+                                        <Grid ColumnDefinitions="*, Auto">
+                                            <TextBox Grid.Column="0"
+                                                Text="{Binding CaminhoCertificado}"
+                                                Classes="Outline"
+                                                Theme="{StaticResource OutlineTextBox}"
+                                                Watermark="Nenhum arquivo selecionado..." />
+                                            <Button Grid.Column="1"
+                                                Command="{Binding ProcurarCertificadoCommand}"
+                                                Classes="Outline" BorderBrush="#E0E0E0"
+                                                Margin="5,0,0,0" Padding="12,5"
+                                                ToolTip.Tip="Procurar arquivo...">
+                                                <materialIcons:MaterialIcon Kind="FolderOpen"
+                                                    Foreground="#673AB7" Width="22" Height="22" />
+                                            </Button>
+                                        </Grid>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="0" Grid.Column="2">
+                                        <TextBlock Text="UF da Empresa" FontWeight="SemiBold"
+                                            Foreground="#555555" Margin="0,0,0,5" FontSize="13" />
+                                        <ComboBox ItemsSource="{Binding ListaUFs}"
+                                            SelectedItem="{Binding UfSelecionada}"
+                                            HorizontalAlignment="Stretch"
+                                            Theme="{StaticResource OutlineComboBox}" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,15,0,0">
+                                        <TextBlock Text="Senha do Certificado" FontWeight="SemiBold"
+                                            Foreground="#555555" Margin="0,0,0,5" FontSize="13" />
+                                        <TextBox Text="{Binding SenhaCertificado}" PasswordChar="*"
+                                            Classes="Outline"
+                                            Theme="{StaticResource OutlineTextBox}"
+                                            Watermark="Digite a senha..." />
+                                    </StackPanel>
+                                </Grid>
+
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                                    Margin="0,10,0,0">
+                                    <Button Content="Consultar Dados na SEFAZ"
+                                        Command="{Binding ConsultarSefazCommand}" Classes="Outline"
+                                        BorderBrush="#673AB7" Foreground="#673AB7" Padding="20,10"
+                                        CornerRadius="8">
+                                        <StackPanel Orientation="Horizontal" Spacing="10">
+                                            <materialIcons:MaterialIcon Kind="CloudSearch"
+                                                Width="20" Height="20" />
+                                            <TextBlock Text="Consultar Dados na SEFAZ"
+                                                VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="White" CornerRadius="8" BoxShadow="0 4 15 0 #0A000000"
+                            Padding="30">
+                            <StackPanel Spacing="15">
+                                <TextBlock Text="2. Dados do Emitente" FontWeight="Bold"
+                                    Foreground="#673AB7" FontSize="16" Margin="0,0,0,10" />
+
+                                <Grid ColumnDefinitions="*, 20, 2*"
+                                    RowDefinitions="Auto, 15, Auto, 15, Auto">
+                                    <StackPanel Grid.Row="0" Grid.Column="0">
+                                        <TextBlock Text="CNPJ" FontWeight="SemiBold"
+                                            Foreground="#555555" Margin="0,0,0,5" FontSize="13" />
+                                        <TextBox Text="{Binding CnpjEmitente}" Classes="Outline"
+                                            Theme="{StaticResource OutlineTextBox}"
+                                            IsReadOnly="True" Background="#F0F0F0" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="0" Grid.Column="2">
+                                        <TextBlock Text="Razão Social" FontWeight="SemiBold"
+                                            Foreground="#555555" Margin="0,0,0,5" FontSize="13" />
+                                        <TextBox Text="{Binding RazaoSocialEmitente}"
+                                            Classes="Outline"
+                                            Theme="{StaticResource OutlineTextBox}" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="2" Grid.Column="0">
+                                        <TextBlock Text="Inscrição Estadual (IE)"
+                                            FontWeight="SemiBold" Foreground="#555555"
+                                            Margin="0,0,0,5" FontSize="13" />
+                                        <TextBox Text="{Binding IeEmitente}" Classes="Outline"
+                                            Theme="{StaticResource OutlineTextBox}" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="2" Grid.Column="2">
+                                        <TextBlock Text="Logradouro" FontWeight="SemiBold"
+                                            Foreground="#555555" Margin="0,0,0,5" FontSize="13" />
+                                        <TextBox Text="{Binding LogradouroEmitente}"
+                                            Classes="Outline"
+                                            Theme="{StaticResource OutlineTextBox}" />
+                                    </StackPanel>
+
+                                    <Grid Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3"
+                                        ColumnDefinitions="*, 20, *, 20, 2*">
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="Número" FontWeight="SemiBold"
+                                                Foreground="#555555" Margin="0,0,0,5" FontSize="13" />
+                                            <TextBox Text="{Binding NumeroEmitente}"
+                                                Classes="Outline"
+                                                Theme="{StaticResource OutlineTextBox}" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Bairro" FontWeight="SemiBold"
+                                                Foreground="#555555" Margin="0,0,0,5" FontSize="13" />
+                                            <TextBox Text="{Binding BairroEmitente}"
+                                                Classes="Outline"
+                                                Theme="{StaticResource OutlineTextBox}" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="4">
+                                            <TextBlock Text="Cidade" FontWeight="SemiBold"
+                                                Foreground="#555555" Margin="0,0,0,5" FontSize="13" />
+                                            <TextBox Text="{Binding CidadeEmitente}"
+                                                Classes="Outline"
+                                                Theme="{StaticResource OutlineTextBox}" />
+                                        </StackPanel>
+                                    </Grid>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Button Content="Salvar Configurações"
+                            Command="{Binding SalvarConfiguracaoCommand}" Classes="Primary"
+                            Theme="{StaticResource SolidButton}" Background="#4CAF50"
+                            HorizontalAlignment="Right" Padding="30,12" CornerRadius="20"
+                            FontSize="15" />
                     </StackPanel>
 
                     <StackPanel IsVisible="{Binding IsWizardVisible}" Spacing="20">
