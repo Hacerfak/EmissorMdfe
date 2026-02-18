@@ -20,7 +20,7 @@ public class MdfeMotorService
         string ufDestino,
         Veiculo veiculo,
         Condutor condutor,
-        List<string> chavesNFe)
+        List<DocumentoFiscal> documentos)
     {
         // ==========================================
         // 1. INICIALIZA O OBJETO MDF-E
@@ -50,7 +50,7 @@ public class MdfeMotorService
                     DhEmi = DateTime.Now, // Exige 'DateTime'
                     TpEmis = MDFeTipoEmissao.Normal,
                     ProcEmi = MDFeIdentificacaoProcessoEmissao.EmissaoComAplicativoContribuinte,
-                    VerProc = "EmissorMdfeCore_1.0",
+                    VerProc = "CoreMDFe_1.0",
                     UFIni = (Estado)Enum.Parse(typeof(Estado), ufOrigem),
                     UFFim = (Estado)Enum.Parse(typeof(Estado), ufDestino),
                     InfMunCarrega = new List<MDFeInfMunCarrega>
@@ -114,10 +114,10 @@ public class MdfeMotorService
                 // ==========================================
                 Tot = new MDFeTot
                 {
-                    QNFe = chavesNFe.Count,
-                    vCarga = 5000.00m, // Esta foi a única propriedade não padronizada pelo Zeus. Continua com 'v' minúsculo
-                    CUnid = MDFeCUnid.KG,
-                    QCarga = 1500.000m
+                    QNFe = documentos.Count,
+                    vCarga = documentos.Sum(d => d.Valor),
+                    CUnid = (MDFeCUnid)1, // 01 - KG
+                    QCarga = documentos.Sum(d => d.Peso)
                 },
 
                 // ==========================================
@@ -125,23 +125,30 @@ public class MdfeMotorService
                 // ==========================================
                 InfDoc = new MDFeInfDoc
                 {
-                    InfMunDescarga = new List<MDFeInfMunDescarga>
-                    {
-                        new MDFeInfMunDescarga
-                        {
-                             CMunDescarga = "3106200", // A Sefaz pede o código do IBGE.
-                             XMunDescarga = "BELO HORIZONTE",
-                             InfNFe = new List<MDFeInfNFe>()
-                        }
-                    }
+                    // Inicializa a lista de descargas vazia para ser preenchida abaixo
+                    InfMunDescarga = new List<MDFeInfMunDescarga>()
                 }
             }
         };
 
-        // Insere as chaves no município de descarregamento
-        foreach (var chave in chavesNFe)
+        // AGRUPAMENTO MÁGICO: O Zeus exige que agrupemos as NFs por cidade de descarga!
+        var gruposCidades = documentos.GroupBy(d => new { d.IbgeDescarga, d.MunicipioDescarga });
+
+        foreach (var cidade in gruposCidades)
         {
-            mdfe.InfMDFe.InfDoc.InfMunDescarga[0].InfNFe.Add(new MDFeInfNFe { ChNFe = chave });
+            var infMunDescarga = new MDFeInfMunDescarga
+            {
+                CMunDescarga = cidade.Key.IbgeDescarga.ToString(),
+                XMunDescarga = cidade.Key.MunicipioDescarga,
+                InfNFe = new List<MDFeInfNFe>()
+            };
+
+            foreach (var doc in cidade)
+            {
+                infMunDescarga.InfNFe.Add(new MDFeInfNFe { ChNFe = doc.Chave });
+            }
+
+            mdfe.InfMDFe.InfDoc.InfMunDescarga.Add(infMunDescarga);
         }
 
         return mdfe;

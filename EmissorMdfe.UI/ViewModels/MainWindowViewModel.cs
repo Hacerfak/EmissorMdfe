@@ -21,9 +21,10 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using DFe.Utils;
 using MDFe.Classes.Extensoes;
-using System.Collections.Generic;
-using DFe.Utils.Assinatura;
 using MDFe.Utils.Configuracoes;
+using System.Xml.Linq;
+using System.Globalization;
+using System.Linq;
 
 namespace EmissorMdfe.UI.ViewModels;
 
@@ -393,6 +394,13 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private string _cidadeEmitente = string.Empty;
     [ObservableProperty] private long _ibgeEmitente = 0;
 
+    // Lista de documentos importados
+    public ObservableCollection<DocumentoFiscal> DocumentosFiscais { get; } = new();
+
+    // Propriedades calculadas que atualizam a tela automaticamente
+    public decimal ValorTotalCarga => DocumentosFiscais.Sum(d => d.Valor);
+    public decimal PesoTotalCarga => DocumentosFiscais.Sum(d => d.Peso);
+
     [RelayCommand]
     private async Task ProcurarCertificadoAsync()
     {
@@ -529,11 +537,8 @@ public partial class MainWindowViewModel : ViewModelBase
             // 1. Instancia o nosso Motor Fiscal
             var motor = new MdfeMotorService();
 
-            // 2. Chaves de Exemplo
-            var chavesDeTeste = new List<string> { "31231012345678901234550010000000011000000018" };
-
             // 3. O Motor gera a classe oficial do Zeus
-            var mdfe = motor.MontarMDFe(_configAtual, "SP", "MG", VeiculoSelecionado, CondutorSelecionado, chavesDeTeste);
+            var mdfe = motor.MontarMDFe(_configAtual, "SP", "MG", VeiculoSelecionado, CondutorSelecionado, DocumentosFiscais.ToList());
 
             // 4. A GRANDE MAGIA: O Zeus já tem as configurações na memória! 
             // Ele calcula a Chave, Dígito Verificador, QR Code, VALIDA contra os Schemas e Assina!
@@ -552,6 +557,115 @@ public partial class MainWindowViewModel : ViewModelBase
         catch (Exception ex)
         {
             Console.WriteLine($"Erro crasso ao gerar MDF-e: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private async Task ImportarXmlAsync()
+    {
+        // Usa a mesma estratégia segura que funcionou para o certificado
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            var window = desktop.MainWindow;
+            if (window == null) return;
+
+            var files = await window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+            {
+                Title = "Selecione os arquivos XML da Nota Fiscal",
+                AllowMultiple = true, // Permite selecionar vários de uma vez!
+                FileTypeFilter = new[]
+                {
+                    new FilePickerFileType("Arquivos XML") { Patterns = new[] { "*.xml" } },
+                    new FilePickerFileType("Todos os Arquivos") { Patterns = new[] { "*.*" } }
+                }
+            });
+
+            if (files != null)
+            {
+                foreach (var file in files)
+                {
+                    // Chama o nosso método de processamento para cada arquivo
+                    AdicionarDocumentoViaXml(file.Path.LocalPath);
+                }
+            }
+        }
+    }
+
+    public void AdicionarDocumentoViaXml(string caminhoArquivo)
+    {
+        try
+        {
+            // Carrega o XML
+            var doc = XDocument.Load(caminhoArquivo);
+
+            // Procura a tag <infNFe> e verifica se existe
+            var infNFe = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "infNFe");
+            if (infNFe == null)
+            {
+                Console.WriteLine("O arquivo não contém a tag <infNFe>.");
+                return;
+            }
+
+            // 1. CHAVE DE ACESSO (Leitura Segura)
+            var idAttr = infNFe.Attribute("Id");
+            string chave = idAttr != null ? idAttr.Value.Replace("NFe", "") : "";
+
+            // Se já existe, não adiciona duplicado
+            if (DocumentosFiscais.Any(d => d.Chave == chave)) return;
+
+            // 2. VALOR DA CARGA
+            var vNfNode = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "vNF");
+            decimal valor = 0;
+            if (vNfNode != null && !string.IsNullOrEmpty(vNfNode.Value))
+            {
+                decimal.TryParse(vNfNode.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out valor);
+            }
+
+            // 3. PESO DA CARGA
+            var pesoNode = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "pesoB");
+            decimal peso = 0;
+            if (pesoNode != null && !string.IsNullOrEmpty(pesoNode.Value))
+            {
+                decimal.TryParse(pesoNode.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out peso);
+            }
+
+            // 4. MUNICÍPIO DE DESCARGA
+            long ibge = 0;
+            string municipio = "DESCONHECIDO";
+
+            var enderDest = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "enderDest");
+            if (enderDest != null)
+            {
+                var cMunNode = enderDest.Elements().FirstOrDefault(x => x.Name.LocalName == "cMun");
+                if (cMunNode != null && !string.IsNullOrEmpty(cMunNode.Value))
+                {
+                    long.TryParse(cMunNode.Value, out ibge);
+                }
+
+                var xMunNode = enderDest.Elements().FirstOrDefault(x => x.Name.LocalName == "xMun");
+                if (xMunNode != null)
+                {
+                    municipio = xMunNode.Value;
+                }
+            }
+
+            // Adiciona à lista
+            DocumentosFiscais.Add(new DocumentoFiscal
+            {
+                Chave = chave,
+                Valor = valor,
+                Peso = peso,
+                IbgeDescarga = ibge,
+                MunicipioDescarga = municipio.ToUpper()
+            });
+
+            // Avisa a interface
+            OnPropertyChanged(nameof(ValorTotalCarga));
+            OnPropertyChanged(nameof(PesoTotalCarga));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao processar XML: {ex.Message}");
         }
     }
 }
