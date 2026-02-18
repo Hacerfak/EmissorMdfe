@@ -17,6 +17,7 @@ public class ConfiguracaoApp
     public string RazaoSocialEmitente { get; set; } = string.Empty;
     public string UfEmitente { get; set; } = string.Empty;
     public string CidadeEmitente { get; set; } = string.Empty;
+    public long CodigoIbgeCidade { get; set; } = 0;
     public string LogradouroEmitente { get; set; } = string.Empty;
     public string NumeroEmitente { get; set; } = string.Empty;
     public string BairroEmitente { get; set; } = string.Empty;

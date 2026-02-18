@@ -48,6 +48,24 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private bool _isModalVeiculoAberto;
     [ObservableProperty] private Veiculo _novoVeiculo = new();
 
+    // Controle do expansor de campos avançados
+    [ObservableProperty] private bool _isVeiculoAvancadoAberto;
+
+    // Listas oficiais da SEFAZ
+    public ObservableCollection<string> ListaTiposRodado { get; } = new()
+    {
+        "01 - Truck", "02 - Toco", "03 - Cavalo Mecânico", "04 - VAN", "05 - Utilitário", "06 - Outros"
+    };
+
+    public ObservableCollection<string> ListaTiposCarroceria { get; } = new()
+    {
+        "00 - Não aplicável", "01 - Aberta", "02 - Fechada/Baú", "03 - Granelera", "04 - Porta Container", "05 - Sider"
+    };
+
+    // Índices selecionados nos ComboBoxes
+    [ObservableProperty] private int _rodadoSelecionadoIndex = 2; // Padrão: Cavalo Mecânico (índice 2 = código 3)
+    [ObservableProperty] private int _carroceriaSelecionadaIndex = 2; // Padrão: Fechada (índice 2 = código 2)
+
     [ObservableProperty] private bool _isModalCondutorAberto;
     [ObservableProperty] private Condutor _novoCondutor = new();
 
@@ -55,21 +73,41 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void AbrirModalVeiculo()
     {
-        NovoVeiculo = new Veiculo { Tipo = "Veículo de Tração" }; // Limpa o formulário e define o padrão
+        NovoVeiculo = new Veiculo();
+        IsVeiculoAvancadoAberto = false; // Garante que o painel avançado começa fechado
+        RodadoSelecionadoIndex = 2; // Reseta para Cavalo Mecânico
+        CarroceriaSelecionadaIndex = 2; // Reseta para Baú
         IsModalVeiculoAberto = true;
     }
 
     [RelayCommand] private void FecharModalVeiculo() => IsModalVeiculoAberto = false;
 
     [RelayCommand]
+    private void FecharModais()
+    {
+        IsModalVeiculoAberto = false;
+        IsModalCondutorAberto = false;
+    }
+
+    [RelayCommand]
     private async Task SalvarVeiculoAsync()
     {
-        if (string.IsNullOrWhiteSpace(NovoVeiculo.Placa)) return; // Validação simples
+        if (NovoVeiculo != null && !string.IsNullOrWhiteSpace(NovoVeiculo.Placa))
+        {
+            // O Rodado na Sefaz começa no 1 (por isso Somamos 1 ao Index que começa no 0)
+            NovoVeiculo.TipoRodado = RodadoSelecionadoIndex + 1;
 
-        await _dbService.SalvarVeiculoAsync(NovoVeiculo);
-        Veiculos.Add(NovoVeiculo); // Atualiza a lista na UI instantaneamente
+            // A Carroceria na Sefaz começa no 0, então o Index já é o código exato!
+            NovoVeiculo.TipoCarroceria = CarroceriaSelecionadaIndex;
 
-        IsModalVeiculoAberto = false; // Fecha o modal
+            // Se o usuário não preencheu UF, pegamos a UF da Empresa como padrão
+            if (string.IsNullOrEmpty(NovoVeiculo.UfLicenciamento))
+                NovoVeiculo.UfLicenciamento = UfSelecionada;
+
+            await _dbService.SalvarVeiculoAsync(NovoVeiculo);
+            Veiculos.Add(NovoVeiculo);
+            IsModalVeiculoAberto = false;
+        }
     }
 
     // -- Comandos Condutor --
@@ -133,6 +171,7 @@ public partial class MainWindowViewModel : ViewModelBase
             _configAtual.BairroEmitente = BairroEmitente;
             _configAtual.CepEmitente = CepEmitente;
             _configAtual.CidadeEmitente = CidadeEmitente;
+            _configAtual.CodigoIbgeCidade = IbgeEmitente;
 
             // 3. ENVIAR PARA O SQLITE
             await _dbService.SalvarConfiguracaoAsync(_configAtual);
@@ -195,6 +234,7 @@ public partial class MainWindowViewModel : ViewModelBase
             BairroEmitente = config.BairroEmitente;
             CepEmitente = config.CepEmitente;
             CidadeEmitente = config.CidadeEmitente;
+            IbgeEmitente = config.CodigoIbgeCidade;
         }
 
         // =================================================================
@@ -351,6 +391,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private string _bairroEmitente = string.Empty;
     [ObservableProperty] private string _cepEmitente = string.Empty;
     [ObservableProperty] private string _cidadeEmitente = string.Empty;
+    [ObservableProperty] private long _ibgeEmitente = 0;
 
     [RelayCommand]
     private async Task ProcurarCertificadoAsync()
@@ -449,6 +490,7 @@ public partial class MainWindowViewModel : ViewModelBase
                         BairroEmitente = dadosSefaz.ender.xBairro ?? string.Empty;
                         CepEmitente = dadosSefaz.ender.CEP?.ToString() ?? string.Empty;
                         CidadeEmitente = dadosSefaz.ender.xMun ?? string.Empty;
+                        IbgeEmitente = (dadosSefaz?.ender?.cMun != null) ? long.Parse(dadosSefaz.ender.cMun) : 0;
                     }
 
                     Console.WriteLine("Dados consultados com sucesso!");

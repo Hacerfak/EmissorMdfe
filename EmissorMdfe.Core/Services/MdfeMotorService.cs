@@ -38,7 +38,7 @@ public class MdfeMotorService
                 Ide = new MDFeIde
                 {
                     CUF = (Estado)Enum.Parse(typeof(Estado), config.UfEmitente),
-                    TpAmb = config.Ambiente == "Homologacao" ? TipoAmbiente.Producao : TipoAmbiente.Homologacao,
+                    TpAmb = config.Ambiente == "Producao" ? TipoAmbiente.Producao : TipoAmbiente.Homologacao,
                     TpEmit = MDFeTipoEmitente.TransportadorCargaPropria,
                     TpTransp = MDFeTpTransp.CTC,
                     Mod = ModeloDocumento.MDFe,
@@ -55,7 +55,11 @@ public class MdfeMotorService
                     UFFim = (Estado)Enum.Parse(typeof(Estado), ufDestino),
                     InfMunCarrega = new List<MDFeInfMunCarrega>
                     {
-                        new MDFeInfMunCarrega { CMunCarrega = "3550308", XMunCarrega = "SAO PAULO" }
+                        new MDFeInfMunCarrega
+                        {
+                            CMunCarrega = config.CodigoIbgeCidade.ToString(),
+                            XMunCarrega = config.CidadeEmitente
+                        }
                     }
                 },
 
@@ -73,7 +77,7 @@ public class MdfeMotorService
                         XLgr = config.LogradouroEmitente,
                         Nro = config.NumeroEmitente,
                         XBairro = config.BairroEmitente,
-                        CMun = 3550308,
+                        CMun = config.CodigoIbgeCidade,
                         XMun = config.CidadeEmitente,
                         CEP = string.IsNullOrWhiteSpace(config.CepEmitente) ? 0 : long.Parse(config.CepEmitente.Replace("-", "")), // Exige 'long'
                         UF = (Estado)Enum.Parse(typeof(Estado), config.UfEmitente)
@@ -91,10 +95,12 @@ public class MdfeMotorService
                         VeicTracao = new MDFeVeicTracao
                         {
                             Placa = veiculo.Placa.Replace("-", "").Trim(),
-                            Tara = 10000,
-                            CapKG = 20000,
-                            TpRod = MDFeTpRod.CavaloMecanico,
-                            TpCar = MDFeTpCar.FechadaBau,
+                            RENAVAM = veiculo.Renavam,
+                            Tara = veiculo.TaraKG > 0 ? veiculo.TaraKG : 10000,         // Fallback de segurança se esquecer
+                            CapKG = veiculo.CapacidadeKG > 0 ? veiculo.CapacidadeKG : 20000,
+                            TpRod = veiculo.TipoRodado > 0 ? (MDFeTpRod)veiculo.TipoRodado : MDFeTpRod.Outros,
+                            TpCar = (MDFeTpCar)veiculo.TipoCarroceria,
+                            ProxyUF = string.IsNullOrEmpty(veiculo.UfLicenciamento) ? config.UfEmitente : veiculo.UfLicenciamento,
                             Condutor = new List<MDFeCondutor>
                             {
                                 new MDFeCondutor { XNome = condutor.Nome, CPF = condutor.Cpf.Replace(".", "").Replace("-", "").Trim() }
