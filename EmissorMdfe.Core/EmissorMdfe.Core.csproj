@@ -12,8 +12,15 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.3" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.3" />
     <PackageReference Include="Zeus.Net.MDFe" Version="2026.2.5.1303" />
     <PackageReference Include="Zeus.Net.NFe.NFCe" Version="2026.2.5.1303" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Schemas\**\*.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

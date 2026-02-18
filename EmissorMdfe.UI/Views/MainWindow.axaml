@@ -317,7 +317,7 @@
                         </Border>
 
                         <Button Content="Salvar Configurações"
-                            Command="{Binding SalvarConfiguracaoCommand}" Classes="Primary"
+                            Command="{Binding SalvarConfiguracoesCommand}" Classes="Primary"
                             Theme="{StaticResource SolidButton}" Background="#4CAF50"
                             HorizontalAlignment="Right" Padding="30,12" CornerRadius="20"
                             FontSize="15" />
@@ -559,6 +559,7 @@
                                                 Command="{Binding VoltarCommand}" Classes="Flat"
                                                 Foreground="Gray" Padding="20,10" />
                                             <Button Content="Emitir MDF-e agora"
+                                                Command="{Binding EmitirMdfeCommand}"
                                                 Theme="{StaticResource SolidButton}"
                                                 Background="#4CAF50" Foreground="White"
                                                 Padding="30,12" CornerRadius="25" FontSize="16"

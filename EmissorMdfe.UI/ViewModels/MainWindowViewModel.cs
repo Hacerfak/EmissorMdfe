@@ -19,6 +19,11 @@ using NFe.Classes.Informacoes.Identificacao.Tipos;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
+using DFe.Utils;
+using MDFe.Classes.Extensoes;
+using System.Collections.Generic;
+using DFe.Utils.Assinatura;
+using MDFe.Utils.Configuracoes;
 
 namespace EmissorMdfe.UI.ViewModels;
 
@@ -190,6 +195,34 @@ public partial class MainWindowViewModel : ViewModelBase
             BairroEmitente = config.BairroEmitente;
             CepEmitente = config.CepEmitente;
             CidadeEmitente = config.CidadeEmitente;
+        }
+
+        // =================================================================
+        // INICIALIZAÇÃO GLOBAL DO MOTOR FISCAL (ZEUS) NO BOOT DO SISTEMA
+        // =================================================================
+        if (!string.IsNullOrEmpty(config.CaminhoCertificado) && File.Exists(config.CaminhoCertificado))
+        {
+            try
+            {
+                // Diz ao Zeus onde está o nosso ficheiro .pfx e a senha
+                MDFeConfiguracao.Instancia.ConfiguracaoCertificado.TipoCertificado = TipoCertificado.A1ByteArray;
+                MDFeConfiguracao.Instancia.ConfiguracaoCertificado.ArrayBytesArquivo = File.ReadAllBytes(config.CaminhoCertificado);
+                MDFeConfiguracao.Instancia.ConfiguracaoCertificado.Senha = config.SenhaCertificado;
+                MDFeConfiguracao.Instancia.ConfiguracaoCertificado.ManterDadosEmCache = true;
+
+                // Aponta para a pasta dos Schemas (.xsd) que criamos no Core
+                var diretorioBase = AppDomain.CurrentDomain.BaseDirectory;
+                MDFeConfiguracao.Instancia.CaminhoSchemas = Path.Combine(diretorioBase, "Schemas");
+
+                // Configura a Versão da SEFAZ para o MDF-e
+                MDFeConfiguracao.Instancia.VersaoWebService.VersaoLayout = MDFe.Utils.Flags.VersaoServico.Versao300;
+
+                Console.WriteLine("Motor Fiscal (Zeus) configurado com sucesso no arranque!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Aviso: Falha ao carregar o certificado no Zeus: {ex.Message}");
+            }
         }
     }
 
@@ -375,7 +408,8 @@ public partial class MainWindowViewModel : ViewModelBase
                 return;
             }
 
-            // 3. Configura o Motor Zeus para a Consulta
+            var diretorioBase = AppDomain.CurrentDomain.BaseDirectory;
+
             var cfg = new ConfiguracaoServico
             {
                 tpAmb = TipoAmbiente.Producao,
@@ -385,7 +419,10 @@ public partial class MainWindowViewModel : ViewModelBase
                 VersaoLayout = VersaoServico.Versao400,
                 ModeloDocumento = ModeloDocumento.NFe,
                 VersaoNfeConsultaCadastro = VersaoServico.Versao400,
-                ValidarSchemas = false
+
+                // === CONFIGURAÇÃO DOS SCHEMAS ===
+                DiretorioSchemas = Path.Combine(diretorioBase, "Schemas"),
+                ValidarSchemas = true // Agora podemos ligar a validação com segurança!
             };
 
             // 4. Instancia o Serviço NFe do Zeus passando a config e o certificado no construtor
@@ -425,6 +462,54 @@ public partial class MainWindowViewModel : ViewModelBase
         catch (Exception ex)
         {
             Console.WriteLine($"Erro ao consultar SEFAZ: {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private async Task EmitirMdfeAsync()
+    {
+        try
+        {
+            if (VeiculoSelecionado == null || CondutorSelecionado == null)
+            {
+                Console.WriteLine("Por favor, selecione o veículo e o condutor no Passo 3.");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_configAtual.CaminhoCertificado))
+            {
+                Console.WriteLine("Configure o seu certificado digital antes de emitir.");
+                return;
+            }
+
+            Console.WriteLine("Iniciando a montagem do MDF-e...");
+
+            // 1. Instancia o nosso Motor Fiscal
+            var motor = new MdfeMotorService();
+
+            // 2. Chaves de Exemplo
+            var chavesDeTeste = new List<string> { "31231012345678901234550010000000011000000018" };
+
+            // 3. O Motor gera a classe oficial do Zeus
+            var mdfe = motor.MontarMDFe(_configAtual, "SP", "MG", VeiculoSelecionado, CondutorSelecionado, chavesDeTeste);
+
+            // 4. A GRANDE MAGIA: O Zeus já tem as configurações na memória! 
+            // Ele calcula a Chave, Dígito Verificador, QR Code, VALIDA contra os Schemas e Assina!
+            mdfe.Assina(); // Assina digitalmente
+            mdfe.Valida(); // Verifica se o XML não tem falhas estruturais
+
+            // 5. Gera o XML final
+            var xmlAssinadoString = mdfe.XmlString();
+
+            Console.WriteLine("================ XML DO MDF-E ASSINADO E VALIDADO ================");
+            Console.WriteLine(xmlAssinadoString);
+            Console.WriteLine("==================================================================");
+
+            Console.WriteLine("MDF-e Gerado com sucesso! O próximo passo é transmitir à Sefaz.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro crasso ao gerar MDF-e: {ex.Message}");
         }
     }
 }
