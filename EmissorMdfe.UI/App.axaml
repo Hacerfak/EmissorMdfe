@@ -2,8 +2,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:themes="clr-namespace:Material.Styles.Themes;assembly=Material.Styles"
     xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+    xmlns:converters="using:EmissorMdfe.UI.Converters"
     x:Class="EmissorMdfe.UI.App"
     RequestedThemeVariant="Light">
+    <Application.Resources>
+        <converters:IndexConverter x:Key="IndexConverter" />
+    </Application.Resources>
     <Application.Styles>
         <themes:MaterialTheme BaseTheme="Light" PrimaryColor="DeepPurple" SecondaryColor="Teal" />
 

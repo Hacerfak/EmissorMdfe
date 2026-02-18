@@ -70,6 +70,15 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private bool _isModalCondutorAberto;
     [ObservableProperty] private Condutor _novoCondutor = new();
 
+    // Adicione na região de propriedades da Configuração
+    [ObservableProperty] private int _ambienteSelecionado = 2; // 2=Homologação
+    [ObservableProperty] private int _tipoEmitenteSelecionado = 1; // 1=Prestador
+    [ObservableProperty] private string _ultimoNumeroConfig = "0"; // String para facilitar edição na TextBox
+
+    // Listas para os ComboBoxes
+    public ObservableCollection<string> ListaAmbientes { get; } = new() { "1 - Produção", "2 - Homologação" };
+    public ObservableCollection<string> ListaTiposEmitente { get; } = new() { "1 - Prestador de Serviço de Transporte", "2 - Transportador de Carga Própria", "3 - CTe Globalizado" };
+
     // -- Comandos Veículo --
     [RelayCommand]
     private void AbrirModalVeiculo()
@@ -173,6 +182,9 @@ public partial class MainWindowViewModel : ViewModelBase
             _configAtual.CepEmitente = CepEmitente;
             _configAtual.CidadeEmitente = CidadeEmitente;
             _configAtual.CodigoIbgeCidade = IbgeEmitente;
+            _configAtual.Ambiente = AmbienteSelecionado;
+            _configAtual.TipoEmitente = TipoEmitenteSelecionado;
+            _configAtual.UltimoNumeroMdfe = int.Parse(UltimoNumeroConfig);
 
             // 3. ENVIAR PARA O SQLITE
             await _dbService.SalvarConfiguracaoAsync(_configAtual);
@@ -214,13 +226,13 @@ public partial class MainWindowViewModel : ViewModelBase
         // Busca do SQLite
         var listaVeiculos = await _dbService.GetVeiculosAsync();
         var listaCondutores = await _dbService.GetCondutoresAsync();
-        var config = await _dbService.GetConfiguracaoAsync(); // NOVO
+        var config = await _dbService.GetConfiguracaoAsync();
 
         // Atualiza a interface
         Veiculos = new ObservableCollection<Veiculo>(listaVeiculos);
         Condutores = new ObservableCollection<Condutor>(listaCondutores);
 
-        // NOVO: Se já existir configuração no banco, preenche a tela
+        // Se já existir configuração no banco, preenche a tela
         if (config != null)
         {
             _configAtual = config;
@@ -236,35 +248,34 @@ public partial class MainWindowViewModel : ViewModelBase
             CepEmitente = config.CepEmitente;
             CidadeEmitente = config.CidadeEmitente;
             IbgeEmitente = config.CodigoIbgeCidade;
-        }
+            AmbienteSelecionado = config.Ambiente;
+            TipoEmitenteSelecionado = config.TipoEmitente;
+            UltimoNumeroConfig = config.UltimoNumeroMdfe.ToString();
 
-        // =================================================================
-        // INICIALIZAÇÃO GLOBAL DO MOTOR FISCAL (ZEUS) NO BOOT DO SISTEMA
-        // =================================================================
-        if (!string.IsNullOrEmpty(config.CaminhoCertificado) && File.Exists(config.CaminhoCertificado))
-        {
-            try
+            // =================================================================
+            // INICIALIZAÇÃO GLOBAL DO MOTOR FISCAL (ZEUS) - AGORA DENTRO DO IF
+            // =================================================================
+            if (!string.IsNullOrEmpty(config.CaminhoCertificado) && File.Exists(config.CaminhoCertificado))
             {
-                // Diz ao Zeus onde está o nosso ficheiro .pfx e a senha
-                MDFeConfiguracao.Instancia.ConfiguracaoCertificado.TipoCertificado = TipoCertificado.A1ByteArray;
-                MDFeConfiguracao.Instancia.ConfiguracaoCertificado.ArrayBytesArquivo = File.ReadAllBytes(config.CaminhoCertificado);
-                MDFeConfiguracao.Instancia.ConfiguracaoCertificado.Senha = config.SenhaCertificado;
-                MDFeConfiguracao.Instancia.ConfiguracaoCertificado.ManterDadosEmCache = true;
+                try
+                {
+                    MDFeConfiguracao.Instancia.ConfiguracaoCertificado.TipoCertificado = TipoCertificado.A1ByteArray;
+                    MDFeConfiguracao.Instancia.ConfiguracaoCertificado.ArrayBytesArquivo = File.ReadAllBytes(config.CaminhoCertificado);
+                    MDFeConfiguracao.Instancia.ConfiguracaoCertificado.Senha = config.SenhaCertificado;
+                    MDFeConfiguracao.Instancia.ConfiguracaoCertificado.ManterDadosEmCache = true;
 
-                // Aponta para a pasta dos Schemas (.xsd) que criamos no Core
-                var diretorioBase = AppDomain.CurrentDomain.BaseDirectory;
-                MDFeConfiguracao.Instancia.CaminhoSchemas = Path.Combine(diretorioBase, "Schemas");
+                    var diretorioBase = AppDomain.CurrentDomain.BaseDirectory;
+                    MDFeConfiguracao.Instancia.CaminhoSchemas = Path.Combine(diretorioBase, "Schemas");
+                    MDFeConfiguracao.Instancia.VersaoWebService.VersaoLayout = MDFe.Utils.Flags.VersaoServico.Versao300;
 
-                // Configura a Versão da SEFAZ para o MDF-e
-                MDFeConfiguracao.Instancia.VersaoWebService.VersaoLayout = MDFe.Utils.Flags.VersaoServico.Versao300;
-
-                Console.WriteLine("Motor Fiscal (Zeus) configurado com sucesso no arranque!");
+                    Console.WriteLine("Motor Fiscal (Zeus) configurado com sucesso no arranque!");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Aviso: Falha ao carregar o certificado no Zeus: {ex.Message}");
+                }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Aviso: Falha ao carregar o certificado no Zeus: {ex.Message}");
-            }
-        }
+        } // <--- A CHAVE DE FECHAMENTO MUDOU PARA AQUI!
     }
 
     // ==========================================
@@ -393,6 +404,18 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private string _cepEmitente = string.Empty;
     [ObservableProperty] private string _cidadeEmitente = string.Empty;
     [ObservableProperty] private long _ibgeEmitente = 0;
+
+    // Variáveis da Viagem (Passo 2 - Roteiro)
+    [ObservableProperty] private string _ufCarregamento = "";
+    [ObservableProperty] private string _ufDescarregamento = "";
+    [ObservableProperty] private DateTimeOffset _dataViagem = DateTimeOffset.Now;
+
+    // Texto informativo para a tela
+    public string ResumoCidadesCarregamento =>
+        string.Join(", ", DocumentosFiscais.Select(d => d.MunicipioCarregamento).Distinct());
+
+    public string ResumoCidadesDescarregamento =>
+        string.Join(", ", DocumentosFiscais.Select(d => d.MunicipioDescarga).Distinct());
 
     // Lista de documentos importados
     public ObservableCollection<DocumentoFiscal> DocumentosFiscais { get; } = new();
@@ -534,11 +557,15 @@ public partial class MainWindowViewModel : ViewModelBase
 
             Console.WriteLine("Iniciando a montagem do MDF-e...");
 
+            // 1. Calcula o Próximo Número
+            int proximoNumero = _configAtual.UltimoNumeroMdfe + 1;
+            Console.WriteLine($"Gerando MDF-e Número: {proximoNumero} (Ambiente: {_configAtual.Ambiente})");
+
             // 1. Instancia o nosso Motor Fiscal
             var motor = new MdfeMotorService();
 
             // 3. O Motor gera a classe oficial do Zeus
-            var mdfe = motor.MontarMDFe(_configAtual, "SP", "MG", VeiculoSelecionado, CondutorSelecionado, DocumentosFiscais.ToList());
+            var mdfe = motor.MontarMDFe(_configAtual, UfCarregamento, UfDescarregamento, VeiculoSelecionado, CondutorSelecionado, DocumentosFiscais.ToList(), proximoNumero);
 
             // 4. A GRANDE MAGIA: O Zeus já tem as configurações na memória! 
             // Ele calcula a Chave, Dígito Verificador, QR Code, VALIDA contra os Schemas e Assina!
@@ -595,77 +622,92 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         try
         {
-            // Carrega o XML
             var doc = XDocument.Load(caminhoArquivo);
-
-            // Procura a tag <infNFe> e verifica se existe
             var infNFe = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "infNFe");
-            if (infNFe == null)
-            {
-                Console.WriteLine("O arquivo não contém a tag <infNFe>.");
-                return;
-            }
+            if (infNFe == null) return;
 
-            // 1. CHAVE DE ACESSO (Leitura Segura)
+            // CHAVE
             var idAttr = infNFe.Attribute("Id");
             string chave = idAttr != null ? idAttr.Value.Replace("NFe", "") : "";
-
-            // Se já existe, não adiciona duplicado
             if (DocumentosFiscais.Any(d => d.Chave == chave)) return;
 
-            // 2. VALOR DA CARGA
+            // VALORES
             var vNfNode = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "vNF");
-            decimal valor = 0;
-            if (vNfNode != null && !string.IsNullOrEmpty(vNfNode.Value))
-            {
-                decimal.TryParse(vNfNode.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out valor);
-            }
+            decimal valor = vNfNode != null ? decimal.Parse(vNfNode.Value, CultureInfo.InvariantCulture) : 0;
 
-            // 3. PESO DA CARGA
             var pesoNode = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "pesoB");
-            decimal peso = 0;
-            if (pesoNode != null && !string.IsNullOrEmpty(pesoNode.Value))
-            {
-                decimal.TryParse(pesoNode.Value, NumberStyles.Any, CultureInfo.InvariantCulture, out peso);
-            }
+            decimal peso = pesoNode != null ? decimal.Parse(pesoNode.Value, CultureInfo.InvariantCulture) : 0;
 
-            // 4. MUNICÍPIO DE DESCARGA
-            long ibge = 0;
-            string municipio = "DESCONHECIDO";
-
+            // === DADOS DO DESCARREGAMENTO (DESTINATÁRIO) ===
             var enderDest = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "enderDest");
+            long ibgeDesc = 0;
+            string xMunDesc = "DESCONHECIDO";
+            string ufDesc = "";
+
             if (enderDest != null)
             {
-                var cMunNode = enderDest.Elements().FirstOrDefault(x => x.Name.LocalName == "cMun");
-                if (cMunNode != null && !string.IsNullOrEmpty(cMunNode.Value))
-                {
-                    long.TryParse(cMunNode.Value, out ibge);
-                }
+                var cMun = enderDest.Elements().FirstOrDefault(x => x.Name.LocalName == "cMun")?.Value;
+                var xMun = enderDest.Elements().FirstOrDefault(x => x.Name.LocalName == "xMun")?.Value;
+                var uf = enderDest.Elements().FirstOrDefault(x => x.Name.LocalName == "UF")?.Value;
 
-                var xMunNode = enderDest.Elements().FirstOrDefault(x => x.Name.LocalName == "xMun");
-                if (xMunNode != null)
-                {
-                    municipio = xMunNode.Value;
-                }
+                if (cMun != null) long.TryParse(cMun, out ibgeDesc);
+                if (xMun != null) xMunDesc = xMun;
+                if (uf != null) ufDesc = uf;
             }
 
-            // Adiciona à lista
-            DocumentosFiscais.Add(new DocumentoFiscal
+            // === DADOS DO CARREGAMENTO (EMITENTE DA NFE) ===
+            // No MDF-e, quem carrega geralmente é quem emitiu a Nota Fiscal que estamos transportando
+            var emit = doc.Descendants().FirstOrDefault(x => x.Name.LocalName == "emit");
+            var enderEmit = emit?.Descendants().FirstOrDefault(x => x.Name.LocalName == "enderEmit");
+
+            long ibgeCarreg = 0;
+            string xMunCarreg = "DESCONHECIDO";
+            string ufCarreg = "";
+
+            if (enderEmit != null)
+            {
+                var cMun = enderEmit.Elements().FirstOrDefault(x => x.Name.LocalName == "cMun")?.Value;
+                var xMun = enderEmit.Elements().FirstOrDefault(x => x.Name.LocalName == "xMun")?.Value;
+                var uf = enderEmit.Elements().FirstOrDefault(x => x.Name.LocalName == "UF")?.Value;
+
+                if (cMun != null) long.TryParse(cMun, out ibgeCarreg);
+                if (xMun != null) xMunCarreg = xMun;
+                if (uf != null) ufCarreg = uf;
+            }
+
+            // Adiciona
+            var novoDoc = new DocumentoFiscal
             {
                 Chave = chave,
                 Valor = valor,
                 Peso = peso,
-                IbgeDescarga = ibge,
-                MunicipioDescarga = municipio.ToUpper()
-            });
+                IbgeDescarga = ibgeDesc,
+                MunicipioDescarga = xMunDesc.ToUpper(),
+                UfDescarga = ufDesc,
+                IbgeCarregamento = ibgeCarreg,
+                MunicipioCarregamento = xMunCarreg.ToUpper(),
+                UfCarregamento = ufCarreg
+            };
 
-            // Avisa a interface
+            DocumentosFiscais.Add(novoDoc);
+
+            // === INTELIGÊNCIA: Define o Roteiro Automaticamente ===
+            // Se for o primeiro documento, define a UF de Inicio
+            if (string.IsNullOrEmpty(UfCarregamento))
+                UfCarregamento = ufCarreg;
+
+            // A UF Final é sempre a do último documento adicionado (assumindo rota sequencial)
+            UfDescarregamento = ufDesc;
+
+            // Atualiza totais e resumos
             OnPropertyChanged(nameof(ValorTotalCarga));
             OnPropertyChanged(nameof(PesoTotalCarga));
+            OnPropertyChanged(nameof(ResumoCidadesCarregamento));
+            OnPropertyChanged(nameof(ResumoCidadesDescarregamento));
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Erro ao processar XML: {ex.Message}");
+            Console.WriteLine($"Erro XML: {ex.Message}");
         }
     }
 }

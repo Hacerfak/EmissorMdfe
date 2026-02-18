@@ -5,7 +5,7 @@ public class ConfiguracaoApp
     public int Id { get; set; }
 
     // Configurações do Sistema
-    public string Ambiente { get; set; } = "Homologacao"; // Homologacao ou Producao
+    public int Ambiente { get; set; } = 2; // 1=Produção, 2=Homologação (Padrão)
 
     // Certificado Digital
     public string CaminhoCertificado { get; set; } = string.Empty;
@@ -22,4 +22,7 @@ public class ConfiguracaoApp
     public string NumeroEmitente { get; set; } = string.Empty;
     public string BairroEmitente { get; set; } = string.Empty;
     public string CepEmitente { get; set; } = string.Empty;
+
+    public int UltimoNumeroMdfe { get; set; } = 0; // O sistema vai somar +1 a isto
+    public int TipoEmitente { get; set; } = 1;
 }

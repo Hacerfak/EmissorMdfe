@@ -106,700 +106,904 @@
                 </StackPanel>
             </Border>
 
-            <Border Grid.Column="1" Background="#F4F6F8" Padding="40">
-                <Panel>
+            <Border Grid.Column="1" Background="#F4F6F8">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <Border Padding="40">
+                        <Panel>
 
-                    <StackPanel IsVisible="{Binding IsDashboard}" Spacing="20">
-                        <TextBlock Text="Resumo Geral" FontSize="28" FontWeight="Light"
-                            Foreground="#222222" />
-                        <TextBlock Text="Acompanhe as emissões e o status da frota."
-                            FontSize="14" Foreground="Gray" Margin="0,-15,0,10" />
-
-                        <Grid ColumnDefinitions="*, 20, *, 20, *" Margin="0, 10, 0, 30">
-                            <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="20"
-                                BoxShadow="0 4 15 0 #0A000000">
-                                <StackPanel>
-                                    <materialIcons:MaterialIcon Kind="CheckDecagram"
-                                        Foreground="#4CAF50" Width="36" Height="36"
-                                        HorizontalAlignment="Left" />
-                                    <TextBlock Text="Emitidos Hoje" Foreground="#555555"
-                                        Margin="0,15,0,0" />
-                                    <TextBlock Text="12" FontWeight="Bold" FontSize="36"
-                                        Foreground="#333333" />
-                                </StackPanel>
-                            </Border>
-
-                            <Border Grid.Column="2" Background="White" CornerRadius="8" Padding="20"
-                                BoxShadow="0 4 15 0 #0A000000">
-                                <StackPanel>
-                                    <materialIcons:MaterialIcon Kind="TruckFastOutline"
-                                        Foreground="#FF9800" Width="36" Height="36"
-                                        HorizontalAlignment="Left" />
-                                    <TextBlock Text="MDF-es em Trânsito" Foreground="#555555"
-                                        Margin="0,15,0,0" />
-                                    <TextBlock Text="3" FontWeight="Bold" FontSize="36"
-                                        Foreground="#333333" />
-                                </StackPanel>
-                            </Border>
-
-                            <Border Grid.Column="4" Background="White" CornerRadius="8" Padding="20"
-                                BoxShadow="0 4 15 0 #0A000000">
-                                <StackPanel>
-                                    <materialIcons:MaterialIcon Kind="AlertCircleOutline"
-                                        Foreground="#F44336" Width="36" Height="36"
-                                        HorizontalAlignment="Left" />
-                                    <TextBlock Text="Rejeitados Sefaz" Foreground="#555555"
-                                        Margin="0,15,0,0" />
-                                    <TextBlock Text="0" FontWeight="Bold" FontSize="36"
-                                        Foreground="#333333" />
-                                </StackPanel>
-                            </Border>
-                        </Grid>
-
-                        <Border Background="White" CornerRadius="8" Padding="30"
-                            BoxShadow="0 4 15 0 #0A000000">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"
-                                Spacing="20">
-                                <materialIcons:MaterialIcon Kind="FileDocumentPlus" Width="48"
-                                    Height="48" Foreground="#E0E0E0" />
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="Nova Viagem Programada?"
-                                        FontSize="18" FontWeight="SemiBold" />
-                                    <TextBlock
-                                        Text="Inicie a emissão do MDF-e para liberar o veículo."
-                                        Foreground="Gray" />
-                                </StackPanel>
-                                <Button Content="Emitir MDF-e"
-                                    Command="{Binding IniciarEmissaoCommand}" Classes="Primary"
-                                    Theme="{StaticResource SolidButton}" Padding="20,10"
-                                    CornerRadius="20" Margin="20,0,0,0" />
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-
-                    <StackPanel IsVisible="{Binding IsConfiguracoes}" Spacing="20">
-                        <TextBlock Text="Configurações do Sistema" FontSize="28" FontWeight="Light"
-                            Foreground="#222222" />
-                        <TextBlock
-                            Text="Configure o certificado digital e os dados da sua empresa para emitir."
-                            FontSize="14" Foreground="Gray" Margin="0,-15,0,10" />
-
-                        <Border Background="White" CornerRadius="8" BoxShadow="0 4 15 0 #0A000000"
-                            Padding="30">
-                            <StackPanel Spacing="15">
-                                <TextBlock Text="1. Certificado Digital (A1)" FontWeight="Bold"
-                                    Foreground="#673AB7" FontSize="16" Margin="0,0,0,10" />
-
-                                <Grid ColumnDefinitions="*, 20, 200" RowDefinitions="Auto, Auto">
-                                    <StackPanel Grid.Row="0" Grid.Column="0">
-                                        <TextBlock Text="Caminho do Arquivo (.pfx)"
-                                            FontWeight="SemiBold" Foreground="#555555"
-                                            Margin="0,0,0,5" FontSize="13" />
-                                        <Grid ColumnDefinitions="*, Auto">
-                                            <TextBox Grid.Column="0"
-                                                Text="{Binding CaminhoCertificado}"
-                                                Classes="Outline"
-                                                Theme="{StaticResource OutlineTextBox}"
-                                                Watermark="Nenhum arquivo selecionado..." />
-                                            <Button Grid.Column="1"
-                                                Command="{Binding ProcurarCertificadoCommand}"
-                                                Classes="Outline" BorderBrush="#E0E0E0"
-                                                Margin="5,0,0,0" Padding="12,5"
-                                                ToolTip.Tip="Procurar arquivo...">
-                                                <materialIcons:MaterialIcon Kind="FolderOpen"
-                                                    Foreground="#673AB7" Width="22" Height="22" />
-                                            </Button>
-                                        </Grid>
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Row="0" Grid.Column="2">
-                                        <TextBlock Text="UF da Empresa" FontWeight="SemiBold"
-                                            Foreground="#555555" Margin="0,0,0,5" FontSize="13" />
-                                        <ComboBox ItemsSource="{Binding ListaUFs}"
-                                            SelectedItem="{Binding UfSelecionada}"
-                                            HorizontalAlignment="Stretch"
-                                            Theme="{StaticResource OutlineComboBox}" />
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,15,0,0">
-                                        <TextBlock Text="Senha do Certificado" FontWeight="SemiBold"
-                                            Foreground="#555555" Margin="0,0,0,5" FontSize="13" />
-                                        <TextBox Text="{Binding SenhaCertificado}" PasswordChar="*"
-                                            Classes="Outline"
-                                            Theme="{StaticResource OutlineTextBox}"
-                                            Watermark="Digite a senha..." />
-                                    </StackPanel>
-                                </Grid>
-
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
-                                    Margin="0,10,0,0">
-                                    <Button Content="Consultar Dados na SEFAZ"
-                                        Command="{Binding ConsultarSefazCommand}" Classes="Outline"
-                                        BorderBrush="#673AB7" Foreground="#673AB7" Padding="20,10"
-                                        CornerRadius="8">
-                                        <StackPanel Orientation="Horizontal" Spacing="10">
-                                            <materialIcons:MaterialIcon Kind="CloudSearch"
-                                                Width="20" Height="20" />
-                                            <TextBlock Text="Consultar Dados na SEFAZ"
-                                                VerticalAlignment="Center" />
-                                        </StackPanel>
-                                    </Button>
-                                </StackPanel>
-                            </StackPanel>
-                        </Border>
-
-                        <Border Background="White" CornerRadius="8" BoxShadow="0 4 15 0 #0A000000"
-                            Padding="30">
-                            <StackPanel Spacing="15">
-                                <TextBlock Text="2. Dados do Emitente" FontWeight="Bold"
-                                    Foreground="#673AB7" FontSize="16" Margin="0,0,0,10" />
-
-                                <Grid ColumnDefinitions="*, 20, 2*"
-                                    RowDefinitions="Auto, 15, Auto, 15, Auto">
-                                    <StackPanel Grid.Row="0" Grid.Column="0">
-                                        <TextBlock Text="CNPJ" FontWeight="SemiBold"
-                                            Foreground="#555555" Margin="0,0,0,5" FontSize="13" />
-                                        <TextBox Text="{Binding CnpjEmitente}" Classes="Outline"
-                                            Theme="{StaticResource OutlineTextBox}"
-                                            IsReadOnly="True" Background="#F0F0F0" />
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Row="0" Grid.Column="2">
-                                        <TextBlock Text="Razão Social" FontWeight="SemiBold"
-                                            Foreground="#555555" Margin="0,0,0,5" FontSize="13" />
-                                        <TextBox Text="{Binding RazaoSocialEmitente}"
-                                            Classes="Outline"
-                                            Theme="{StaticResource OutlineTextBox}" />
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Row="2" Grid.Column="0">
-                                        <TextBlock Text="Inscrição Estadual (IE)"
-                                            FontWeight="SemiBold" Foreground="#555555"
-                                            Margin="0,0,0,5" FontSize="13" />
-                                        <TextBox Text="{Binding IeEmitente}" Classes="Outline"
-                                            Theme="{StaticResource OutlineTextBox}" />
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Row="2" Grid.Column="2">
-                                        <TextBlock Text="Logradouro" FontWeight="SemiBold"
-                                            Foreground="#555555" Margin="0,0,0,5" FontSize="13" />
-                                        <TextBox Text="{Binding LogradouroEmitente}"
-                                            Classes="Outline"
-                                            Theme="{StaticResource OutlineTextBox}" />
-                                    </StackPanel>
-
-                                    <Grid Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3"
-                                        ColumnDefinitions="*, 20, *, 20, 2*">
-                                        <StackPanel Grid.Column="0">
-                                            <TextBlock Text="Número" FontWeight="SemiBold"
-                                                Foreground="#555555" Margin="0,0,0,5" FontSize="13" />
-                                            <TextBox Text="{Binding NumeroEmitente}"
-                                                Classes="Outline"
-                                                Theme="{StaticResource OutlineTextBox}" />
-                                        </StackPanel>
-                                        <StackPanel Grid.Column="2">
-                                            <TextBlock Text="Bairro" FontWeight="SemiBold"
-                                                Foreground="#555555" Margin="0,0,0,5" FontSize="13" />
-                                            <TextBox Text="{Binding BairroEmitente}"
-                                                Classes="Outline"
-                                                Theme="{StaticResource OutlineTextBox}" />
-                                        </StackPanel>
-                                        <StackPanel Grid.Column="4">
-                                            <TextBlock Text="Cidade" FontWeight="SemiBold"
-                                                Foreground="#555555" Margin="0,0,0,5" FontSize="13" />
-                                            <TextBox Text="{Binding CidadeEmitente}"
-                                                Classes="Outline"
-                                                Theme="{StaticResource OutlineTextBox}" />
-                                        </StackPanel>
-                                    </Grid>
-                                </Grid>
-                            </StackPanel>
-                        </Border>
-
-                        <Button Content="Salvar Configurações"
-                            Command="{Binding SalvarConfiguracoesCommand}" Classes="Primary"
-                            Theme="{StaticResource SolidButton}" Background="#4CAF50"
-                            HorizontalAlignment="Right" Padding="30,12" CornerRadius="20"
-                            FontSize="15" />
-                    </StackPanel>
-
-                    <StackPanel IsVisible="{Binding IsWizardVisible}" Spacing="20">
-                        <TextBlock Text="Nova Emissão de MDF-e" FontSize="28" FontWeight="Light"
-                            Foreground="#222222" />
-                        <TextBlock Text="Preencha os dados abaixo. Aperte ESC para cancelar."
-                            FontSize="14" Foreground="Gray" Margin="0,-15,0,20" />
-
-                        <Border Background="White" CornerRadius="8" BoxShadow="0 4 15 0 #10000000"
-                            Padding="30">
-                            <StackPanel Spacing="20">
-                                <Grid ColumnDefinitions="*, *, *, *" Margin="0, 0, 0, 30">
-                                    <TextBlock Grid.Column="0" Text="1. Viagem"
-                                        FontWeight="{Binding IsPasso1, StringFormat='Bold|Normal'}"
-                                        Foreground="{Binding IsPasso1, StringFormat='#673AB7|Gray'}"
-                                        HorizontalAlignment="Center" />
-                                    <TextBlock Grid.Column="1" Text="2. Documentos"
-                                        FontWeight="{Binding IsPasso2, StringFormat='Bold|Normal'}"
-                                        Foreground="{Binding IsPasso2, StringFormat='#673AB7|Gray'}"
-                                        HorizontalAlignment="Center" />
-                                    <TextBlock Grid.Column="2" Text="3. Transporte"
-                                        FontWeight="{Binding IsPasso3, StringFormat='Bold|Normal'}"
-                                        Foreground="{Binding IsPasso3, StringFormat='#673AB7|Gray'}"
-                                        HorizontalAlignment="Center" />
-                                    <TextBlock Grid.Column="3" Text="4. Emissão"
-                                        FontWeight="{Binding IsPasso4, StringFormat='Bold|Normal'}"
-                                        Foreground="{Binding IsPasso4, StringFormat='#673AB7|Gray'}"
-                                        HorizontalAlignment="Center" />
-                                </Grid>
-
-                                <Separator Background="#EEEEEE" Margin="0,-20,0,10" />
-
-                                <StackPanel IsVisible="{Binding IsPasso1}" Spacing="20">
-                                    <Grid ColumnDefinitions="*, 20, *"
-                                        RowDefinitions="Auto, 20, Auto">
-                                        <StackPanel Grid.Row="0" Grid.Column="0">
-                                            <TextBlock Text="UF de Carregamento"
-                                                FontWeight="SemiBold" Foreground="#555555"
-                                                Margin="0,0,0,5" FontSize="13" />
-                                            <TextBox Classes="Outline"
-                                                Theme="{StaticResource OutlineTextBox}"
-                                                Watermark="Ex: SP" />
-                                        </StackPanel>
-                                        <StackPanel Grid.Row="0" Grid.Column="2">
-                                            <TextBlock Text="UF de Descarregamento"
-                                                FontWeight="SemiBold" Foreground="#555555"
-                                                Margin="0,0,0,5" FontSize="13" />
-                                            <TextBox Classes="Outline"
-                                                Theme="{StaticResource OutlineTextBox}"
-                                                Watermark="Ex: MG" />
-                                        </StackPanel>
-                                        <StackPanel Grid.Row="2" Grid.Column="0">
-                                            <TextBlock Text="Data de Início da Viagem"
-                                                FontWeight="SemiBold" Foreground="#555555"
-                                                Margin="0,0,0,5" FontSize="13" />
-                                            <DatePicker HorizontalAlignment="Stretch" />
-                                        </StackPanel>
-                                    </Grid>
-                                    <Grid ColumnDefinitions="Auto, *, Auto" Margin="0, 30, 0, 0">
-                                        <Button Grid.Column="0" Content="Cancelar (ESC)"
-                                            Command="{Binding CancelarCommand}" Classes="Flat"
-                                            Foreground="#F44336"
-                                            FontWeight="SemiBold" />
-                                        <Button Grid.Column="2" Content="Avançar"
-                                            Command="{Binding AvancarCommand}" Classes="Primary"
-                                            Theme="{StaticResource SolidButton}" Padding="30,10"
-                                            CornerRadius="20" />
-                                    </Grid>
-                                </StackPanel>
-
-                                <StackPanel IsVisible="{Binding IsPasso2}" Spacing="20">
-                                    <StackPanel Spacing="15" Margin="0,0,0,20">
-                                        <TextBlock Text="Passo 2: Notas Fiscais (Carga)"
-                                            FontSize="18" FontWeight="SemiBold" Foreground="#333" />
-                                        <TextBlock
-                                            Text="Importe os arquivos XML das Notas Fiscais que compõem esta viagem. O sistema calculará o peso e o valor automaticamente."
-                                            Foreground="#666" TextWrapping="Wrap" FontSize="14" />
-
-                                        <Button Content="Importar XMLs (NF-e)"
-                                            Command="{Binding ImportarXmlCommand}" Classes="Primary"
-                                            Theme="{StaticResource SolidButton}"
-                                            Background="#2196F3" Padding="20,10" CornerRadius="8" />
-
-                                        <DataGrid ItemsSource="{Binding DocumentosFiscais}"
-                                            AutoGenerateColumns="False" Height="150"
-                                            BorderBrush="#E0E0E0" BorderThickness="1"
-                                            CornerRadius="8" Margin="0,10,0,0">
-                                            <DataGrid.Columns>
-                                                <DataGridTextColumn Header="Chave de Acesso"
-                                                    Binding="{Binding Chave}" Width="*" />
-                                                <DataGridTextColumn Header="Cidade Descarga"
-                                                    Binding="{Binding MunicipioDescarga}"
-                                                    Width="150" />
-                                                <DataGridTextColumn Header="Valor (R$)"
-                                                    Binding="{Binding Valor}" Width="100" />
-                                                <DataGridTextColumn Header="Peso (KG)"
-                                                    Binding="{Binding Peso}" Width="100" />
-                                            </DataGrid.Columns>
-                                        </DataGrid>
-
-                                        <StackPanel Orientation="Horizontal" Spacing="20"
-                                            HorizontalAlignment="Right" Margin="0,10,0,0">
-                                            <TextBlock
-                                                Text="{Binding PesoTotalCarga, StringFormat='Peso Total: {0:N2} KG'}"
-                                                FontWeight="Bold" FontSize="15" Foreground="#333" />
-                                            <TextBlock
-                                                Text="{Binding ValorTotalCarga, StringFormat='Valor Total: R$ {0:N2}'}"
-                                                FontWeight="Bold" FontSize="15" Foreground="#4CAF50" />
-                                        </StackPanel>
-                                    </StackPanel>
-                                </StackPanel>
-
-                                <StackPanel IsVisible="{Binding IsPasso3}" Spacing="20">
-                                    <TextBlock Text="Dados do Transporte" FontSize="18"
-                                        FontWeight="SemiBold" Margin="0,10,0,0" />
-
-                                    <TextBlock Text="Veículo de Tração" FontWeight="Bold"
-                                        Foreground="#673AB7" FontSize="15" Margin="0,10,0,0" />
-                                    <Grid ColumnDefinitions="*, 20, *" RowDefinitions="Auto">
-                                        <StackPanel Grid.Column="0">
-                                            <TextBlock Text="Selecione a Placa"
-                                                FontWeight="SemiBold" Foreground="#555555"
-                                                Margin="0,0,0,5" FontSize="13" />
-                                            <ComboBox ItemsSource="{Binding Veiculos}"
-                                                SelectedItem="{Binding VeiculoSelecionado}"
-                                                HorizontalAlignment="Stretch"
-                                                PlaceholderText="Escolha um veículo..."
-                                                Theme="{StaticResource OutlineComboBox}">
-                                                <ComboBox.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock Text="{Binding Placa}" />
-                                                    </DataTemplate>
-                                                </ComboBox.ItemTemplate>
-                                            </ComboBox>
-                                        </StackPanel>
-
-                                        <StackPanel Grid.Column="2">
-                                            <TextBlock Text="RNTRC (Preenchimento Automático)"
-                                                FontWeight="SemiBold" Foreground="#555555"
-                                                Margin="0,0,0,5" FontSize="13" />
-                                            <TextBox Text="{Binding VeiculoSelecionado.Rntrc}"
-                                                IsReadOnly="True" Background="#F0F0F0"
-                                                Classes="Outline"
-                                                Theme="{StaticResource OutlineTextBox}"
-                                                Watermark="-" />
-                                        </StackPanel>
-                                    </Grid>
-
-                                    <TextBlock Text="Condutor" FontWeight="Bold"
-                                        Foreground="#673AB7" FontSize="15" Margin="0,15,0,0" />
-                                    <Grid ColumnDefinitions="*, 20, 2*" RowDefinitions="Auto">
-                                        <StackPanel Grid.Column="0">
-                                            <TextBlock Text="Selecione o Condutor"
-                                                FontWeight="SemiBold" Foreground="#555555"
-                                                Margin="0,0,0,5" FontSize="13" />
-                                            <ComboBox ItemsSource="{Binding Condutores}"
-                                                SelectedItem="{Binding CondutorSelecionado}"
-                                                HorizontalAlignment="Stretch"
-                                                PlaceholderText="Escolha o motorista..."
-                                                Theme="{StaticResource OutlineComboBox}">
-                                                <ComboBox.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock Text="{Binding Nome}" />
-                                                    </DataTemplate>
-                                                </ComboBox.ItemTemplate>
-                                            </ComboBox>
-                                        </StackPanel>
-
-                                        <StackPanel Grid.Column="2">
-                                            <TextBlock Text="CPF (Preenchimento Automático)"
-                                                FontWeight="SemiBold" Foreground="#555555"
-                                                Margin="0,0,0,5" FontSize="13" />
-                                            <TextBox Text="{Binding CondutorSelecionado.Cpf}"
-                                                IsReadOnly="True" Background="#F0F0F0"
-                                                Classes="Outline"
-                                                Theme="{StaticResource OutlineTextBox}"
-                                                Watermark="-" />
-                                        </StackPanel>
-                                    </Grid>
-
-                                    <Grid ColumnDefinitions="Auto, *, Auto" Margin="0, 30, 0, 0">
-                                        <Button Grid.Column="0" Content="Cancelar (ESC)"
-                                            Command="{Binding CancelarCommand}" Classes="Flat"
-                                            Foreground="#F44336" FontWeight="SemiBold" />
-                                        <StackPanel Grid.Column="2" Orientation="Horizontal"
-                                            Spacing="10">
-                                            <Button Content="Voltar"
-                                                Command="{Binding VoltarCommand}" Classes="Flat"
-                                                Foreground="Gray" Padding="20,10" />
-                                            <Button Content="Avançar para Emissão"
-                                                Command="{Binding AvancarCommand}" Classes="Primary"
-                                                Theme="{StaticResource SolidButton}" Padding="20,10"
-                                                CornerRadius="20" />
-                                        </StackPanel>
-                                    </Grid>
-                                </StackPanel>
-
-                                <StackPanel IsVisible="{Binding IsPasso4}" Spacing="20">
-                                    <TextBlock Text="Pronto para Emitir!" FontSize="18"
-                                        FontWeight="SemiBold" Margin="0,10,0,0" />
-                                    <TextBlock Text="Confirme se os dados abaixo estão corretos."
-                                        FontSize="14" Foreground="Gray" Margin="0,-15,0,10" />
-
-                                    <Border Background="#F8F9FA" BorderBrush="#E0E0E0"
-                                        BorderThickness="1" CornerRadius="8" Padding="25">
-                                        <StackPanel Spacing="15">
-                                            <TextBlock FontWeight="Medium" Foreground="#333333">
-                                                <Run Text="Resumo: SP ➔ MG | 1 NF-e | " />
-                                                <Run
-                                                    Text="{Binding VeiculoSelecionado.Placa, TargetNullValue='(Nenhum Veículo)'}"
-                                                    Foreground="#673AB7" FontWeight="Bold" />
-                                                <Run Text=" | " />
-                                                <Run
-                                                    Text="{Binding CondutorSelecionado.Nome, TargetNullValue='(Nenhum Condutor)'}"
-                                                    Foreground="#673AB7" FontWeight="Bold" />
-                                            </TextBlock>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <Border Background="#FFF3E0" BorderBrush="#FFE0B2"
-                                        BorderThickness="1" CornerRadius="4" Padding="15">
-                                        <StackPanel Orientation="Horizontal" Spacing="10">
-                                            <materialIcons:MaterialIcon Kind="AlertCircleOutline"
-                                                Foreground="#FF9800" Width="24" Height="24" />
-                                            <TextBlock Text="O envio será feito em HOMOLOGAÇÃO."
-                                                Foreground="#E65100" VerticalAlignment="Center" />
-                                        </StackPanel>
-                                    </Border>
-
-                                    <Grid ColumnDefinitions="Auto, *, Auto" Margin="0, 20, 0, 0">
-                                        <Button Grid.Column="0" Content="Cancelar (ESC)"
-                                            Command="{Binding CancelarCommand}" Classes="Flat"
-                                            Foreground="#F44336" FontWeight="SemiBold" />
-                                        <StackPanel Grid.Column="2" Orientation="Horizontal"
-                                            Spacing="15">
-                                            <Button Content="Voltar"
-                                                Command="{Binding VoltarCommand}" Classes="Flat"
-                                                Foreground="Gray" Padding="20,10" />
-                                            <Button Content="Emitir MDF-e agora"
-                                                Command="{Binding EmitirMdfeCommand}"
-                                                Theme="{StaticResource SolidButton}"
-                                                Background="#4CAF50" Foreground="White"
-                                                Padding="30,12" CornerRadius="25" FontSize="16"
-                                                FontWeight="Bold" />
-                                        </StackPanel>
-                                    </Grid>
-                                </StackPanel>
-
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-
-                    <StackPanel IsVisible="{Binding IsVeiculos}" Spacing="20">
-                        <Grid ColumnDefinitions="*, Auto">
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="Meus Veículos" FontSize="28" FontWeight="Light"
+                            <StackPanel IsVisible="{Binding IsDashboard}" Spacing="20">
+                                <TextBlock Text="Resumo Geral" FontSize="28" FontWeight="Light"
                                     Foreground="#222222" />
-                                <TextBlock
-                                    Text="Gerencie a frota para usar o preenchimento automático."
-                                    FontSize="14" Foreground="Gray" Margin="0,5,0,0" />
-                            </StackPanel>
-                            <Button Grid.Column="1" Content="+ Novo Veículo"
-                                Command="{Binding AbrirModalVeiculoCommand}" Classes="Primary"
-                                Theme="{StaticResource SolidButton}" Background="#673AB7"
-                                CornerRadius="20" Padding="20,10" VerticalAlignment="Center" />
-                        </Grid>
+                                <TextBlock Text="Acompanhe as emissões e o status da frota."
+                                    FontSize="14" Foreground="Gray" Margin="0,-15,0,10" />
 
-                        <Border Background="White" CornerRadius="8" BoxShadow="0 2 10 0 #0A000000"
-                            Margin="0,10,0,0" Padding="0,0,0,10">
-                            <StackPanel>
-                                <Border Background="#F8F9FA" Padding="20,15" Margin="0,0,0,10">
-                                    <Grid ColumnDefinitions="2*, 3*, 2*, *">
-                                        <TextBlock Grid.Column="0" Text="PLACA"
-                                            FontWeight="SemiBold" Foreground="#777777" FontSize="12" />
-                                        <TextBlock Grid.Column="1" Text="TIPO" FontWeight="SemiBold"
-                                            Foreground="#777777" FontSize="12" />
-                                        <TextBlock Grid.Column="2" Text="RNTRC"
-                                            FontWeight="SemiBold" Foreground="#777777" FontSize="12" />
-                                        <TextBlock Grid.Column="3" Text="AÇÕES"
-                                            FontWeight="SemiBold" Foreground="#777777" FontSize="12"
-                                            HorizontalAlignment="Right" />
-                                    </Grid>
-                                </Border>
-
-                                <ItemsControl ItemsSource="{Binding Veiculos}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border BorderBrush="#EEEEEE" BorderThickness="0,0,0,1"
-                                                Padding="20,10">
-                                                <Grid ColumnDefinitions="2*, 3*, 2*, *">
-                                                    <StackPanel Grid.Column="0"
-                                                        Orientation="Horizontal" Spacing="10">
-                                                        <Border Background="#EDE7F6"
-                                                            CornerRadius="4" Padding="5,2">
-                                                            <TextBlock Text="{Binding Placa}"
-                                                                FontWeight="Bold"
-                                                                Foreground="#673AB7"
-                                                                VerticalAlignment="Center" />
-                                                        </Border>
-                                                    </StackPanel>
-                                                    <TextBlock Grid.Column="1" Text="{Binding Tipo}"
-                                                        VerticalAlignment="Center"
-                                                        Foreground="#333333" />
-                                                    <TextBlock Grid.Column="2"
-                                                        Text="{Binding Rntrc}"
-                                                        VerticalAlignment="Center"
-                                                        Foreground="#333333" />
-                                                    <StackPanel Grid.Column="3"
-                                                        Orientation="Horizontal" Spacing="5"
-                                                        HorizontalAlignment="Right">
-                                                        <Button Classes="Flat" Padding="5"
-                                                            Foreground="#F44336">
-                                                            <materialIcons:MaterialIcon
-                                                                Kind="TrashCanOutline" />
-                                                        </Button>
-                                                    </StackPanel>
-                                                </Grid>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-
-                                <TextBlock Text="Nenhum veículo registado na frota."
-                                    IsVisible="{Binding !Veiculos.Count}" Foreground="Gray"
-                                    HorizontalAlignment="Center" Margin="0,30,0,20" />
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-
-                    <StackPanel IsVisible="{Binding IsCondutores}" Spacing="20">
-                        <Grid ColumnDefinitions="*, Auto">
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="Condutores" FontSize="28" FontWeight="Light"
-                                    Foreground="#222222" />
-                                <TextBlock
-                                    Text="Cadastre os motoristas responsáveis pelo transporte."
-                                    FontSize="14" Foreground="Gray" Margin="0,5,0,0" />
-                            </StackPanel>
-                            <Button Grid.Column="1" Content="+ Novo Condutor"
-                                Command="{Binding AbrirModalCondutorCommand}" Classes="Primary"
-                                Theme="{StaticResource SolidButton}" Background="#673AB7"
-                                CornerRadius="20" Padding="20,10" VerticalAlignment="Center" />
-                        </Grid>
-
-                        <Border Background="White" CornerRadius="8" BoxShadow="0 2 10 0 #0A000000"
-                            Margin="0,10,0,0" Padding="0,0,0,10">
-                            <StackPanel>
-                                <Border Background="#F8F9FA" Padding="20,15" Margin="0,0,0,10">
-                                    <Grid ColumnDefinitions="3*, 2*, *">
-                                        <TextBlock Grid.Column="0" Text="NOME COMPLETO"
-                                            FontWeight="SemiBold" Foreground="#777777" FontSize="12" />
-                                        <TextBlock Grid.Column="1" Text="CPF" FontWeight="SemiBold"
-                                            Foreground="#777777" FontSize="12" />
-                                        <TextBlock Grid.Column="2" Text="AÇÕES"
-                                            FontWeight="SemiBold" Foreground="#777777" FontSize="12"
-                                            HorizontalAlignment="Right" />
-                                    </Grid>
-                                </Border>
-
-                                <ItemsControl ItemsSource="{Binding Condutores}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border BorderBrush="#EEEEEE" BorderThickness="0,0,0,1"
-                                                Padding="20,10">
-                                                <Grid ColumnDefinitions="3*, 2*, *">
-                                                    <StackPanel Grid.Column="0"
-                                                        Orientation="Horizontal" Spacing="15">
-                                                        <materialIcons:MaterialIcon
-                                                            Kind="AccountCircle"
-                                                            Foreground="#BDBDBD" Width="30"
-                                                            Height="30" />
-                                                        <TextBlock Text="{Binding Nome}"
-                                                            FontWeight="SemiBold"
-                                                            VerticalAlignment="Center"
-                                                            Foreground="#333333" />
-                                                    </StackPanel>
-                                                    <TextBlock Grid.Column="1" Text="{Binding Cpf}"
-                                                        VerticalAlignment="Center" Foreground="Gray" />
-                                                    <StackPanel Grid.Column="2"
-                                                        Orientation="Horizontal" Spacing="5"
-                                                        HorizontalAlignment="Right">
-                                                        <Button Classes="Flat" Padding="5"
-                                                            Foreground="#F44336">
-                                                            <materialIcons:MaterialIcon
-                                                                Kind="TrashCanOutline" />
-                                                        </Button>
-                                                    </StackPanel>
-                                                </Grid>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-
-                                <TextBlock Text="Nenhum condutor registado."
-                                    IsVisible="{Binding !Condutores.Count}" Foreground="Gray"
-                                    HorizontalAlignment="Center" Margin="0,30,0,20" />
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-
-                    <StackPanel IsVisible="{Binding IsHistorico}" Spacing="20">
-                        <Grid ColumnDefinitions="*, Auto">
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="MDF-es Emitidos" FontSize="28" FontWeight="Light"
-                                    Foreground="#222222" />
-                                <TextBlock Text="Histórico de manifestos gerados pelo sistema."
-                                    FontSize="14" Foreground="Gray" Margin="0,5,0,0" />
-                            </StackPanel>
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10"
-                                VerticalAlignment="Center">
-                                <TextBox Classes="Outline" Theme="{StaticResource OutlineTextBox}"
-                                    Watermark="Pesquisar placa ou número..." Width="250" />
-                                <Button Classes="Outline" Foreground="#673AB7" BorderBrush="#673AB7"
-                                    Padding="15,8">
-                                    <materialIcons:MaterialIcon Kind="Magnify" />
-                                </Button>
-                            </StackPanel>
-                        </Grid>
-
-                        <Border Background="White" CornerRadius="8" BoxShadow="0 2 10 0 #0A000000"
-                            Margin="0,10,0,0" Padding="0,0,0,10">
-                            <StackPanel>
-                                <Border Background="#F8F9FA" Padding="20,15" Margin="0,0,0,10">
-                                    <Grid ColumnDefinitions="*, 2*, 2*, 2*, 1.5*">
-                                        <TextBlock Grid.Column="0" Text="Nº MDF-e"
-                                            FontWeight="SemiBold" Foreground="#777777" FontSize="12" />
-                                        <TextBlock Grid.Column="1" Text="DATA DA EMISSÃO"
-                                            FontWeight="SemiBold" Foreground="#777777" FontSize="12" />
-                                        <TextBlock Grid.Column="2" Text="VEÍCULO"
-                                            FontWeight="SemiBold" Foreground="#777777" FontSize="12" />
-                                        <TextBlock Grid.Column="3" Text="ESTADO"
-                                            FontWeight="SemiBold" Foreground="#777777" FontSize="12" />
-                                        <TextBlock Grid.Column="4" Text="ACÇÕES"
-                                            FontWeight="SemiBold" Foreground="#777777" FontSize="12"
-                                            HorizontalAlignment="Right" />
-                                    </Grid>
-                                </Border>
-
-                                <Border BorderBrush="#EEEEEE" BorderThickness="0,0,0,1"
-                                    Padding="20,10">
-                                    <Grid ColumnDefinitions="*, 2*, 2*, 2*, 1.5*">
-                                        <TextBlock Grid.Column="0" Text="1054" FontWeight="Bold"
-                                            VerticalAlignment="Center" Foreground="#333333" />
-                                        <TextBlock Grid.Column="1" Text="24/10/2023 14:30"
-                                            VerticalAlignment="Center" Foreground="Gray" />
-                                        <StackPanel Grid.Column="2" Orientation="Horizontal"
-                                            Spacing="8">
-                                            <materialIcons:MaterialIcon Kind="TruckOutline"
-                                                Foreground="Gray" Width="18" />
-                                            <TextBlock Text="ABC-1234" VerticalAlignment="Center"
+                                <Grid ColumnDefinitions="*, 20, *, 20, *" Margin="0, 10, 0, 30">
+                                    <Border Grid.Column="0" Background="White" CornerRadius="8"
+                                        Padding="20"
+                                        BoxShadow="0 4 15 0 #0A000000">
+                                        <StackPanel>
+                                            <materialIcons:MaterialIcon Kind="CheckDecagram"
+                                                Foreground="#4CAF50" Width="36" Height="36"
+                                                HorizontalAlignment="Left" />
+                                            <TextBlock Text="Emitidos Hoje" Foreground="#555555"
+                                                Margin="0,15,0,0" />
+                                            <TextBlock Text="12" FontWeight="Bold" FontSize="36"
                                                 Foreground="#333333" />
                                         </StackPanel>
-                                        <StackPanel Grid.Column="3" Orientation="Horizontal">
-                                            <Border Background="#E8F5E9" CornerRadius="4"
-                                                Padding="8,4">
-                                                <TextBlock Text="Autorizado" Foreground="#4CAF50"
-                                                    FontWeight="SemiBold" FontSize="12" />
-                                            </Border>
+                                    </Border>
+
+                                    <Border Grid.Column="2" Background="White" CornerRadius="8"
+                                        Padding="20"
+                                        BoxShadow="0 4 15 0 #0A000000">
+                                        <StackPanel>
+                                            <materialIcons:MaterialIcon Kind="TruckFastOutline"
+                                                Foreground="#FF9800" Width="36" Height="36"
+                                                HorizontalAlignment="Left" />
+                                            <TextBlock Text="MDF-es em Trânsito"
+                                                Foreground="#555555"
+                                                Margin="0,15,0,0" />
+                                            <TextBlock Text="3" FontWeight="Bold" FontSize="36"
+                                                Foreground="#333333" />
                                         </StackPanel>
-                                        <StackPanel Grid.Column="4" Orientation="Horizontal"
-                                            Spacing="5" HorizontalAlignment="Right">
-                                            <Button Classes="Flat" Padding="5" Foreground="#E53935"
-                                                ToolTip.Tip="Descarregar PDF">
-                                                <materialIcons:MaterialIcon Kind="FilePdfBox"
-                                                    Width="22" Height="22" />
-                                            </Button>
-                                            <Button Classes="Flat" Padding="5" Foreground="#1E88E5"
-                                                ToolTip.Tip="Descarregar XML">
-                                                <materialIcons:MaterialIcon Kind="Xml" Width="22"
-                                                    Height="22" />
-                                            </Button>
+                                    </Border>
+
+                                    <Border Grid.Column="4" Background="White" CornerRadius="8"
+                                        Padding="20"
+                                        BoxShadow="0 4 15 0 #0A000000">
+                                        <StackPanel>
+                                            <materialIcons:MaterialIcon Kind="AlertCircleOutline"
+                                                Foreground="#F44336" Width="36" Height="36"
+                                                HorizontalAlignment="Left" />
+                                            <TextBlock Text="Rejeitados Sefaz" Foreground="#555555"
+                                                Margin="0,15,0,0" />
+                                            <TextBlock Text="0" FontWeight="Bold" FontSize="36"
+                                                Foreground="#333333" />
                                         </StackPanel>
-                                    </Grid>
+                                    </Border>
+                                </Grid>
+
+                                <Border Background="White" CornerRadius="8" Padding="30"
+                                    BoxShadow="0 4 15 0 #0A000000">
+                                    <StackPanel Orientation="Horizontal"
+                                        HorizontalAlignment="Center"
+                                        Spacing="20">
+                                        <materialIcons:MaterialIcon Kind="FileDocumentPlus"
+                                            Width="48"
+                                            Height="48" Foreground="#E0E0E0" />
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="Nova Viagem Programada?"
+                                                FontSize="18" FontWeight="SemiBold" />
+                                            <TextBlock
+                                                Text="Inicie a emissão do MDF-e para liberar o veículo."
+                                                Foreground="Gray" />
+                                        </StackPanel>
+                                        <Button Content="Emitir MDF-e"
+                                            Command="{Binding IniciarEmissaoCommand}"
+                                            Classes="Primary"
+                                            Theme="{StaticResource SolidButton}" Padding="20,10"
+                                            CornerRadius="20" Margin="20,0,0,0" />
+                                    </StackPanel>
                                 </Border>
                             </StackPanel>
-                        </Border>
-                    </StackPanel>
 
-                </Panel>
+                            <StackPanel IsVisible="{Binding IsConfiguracoes}" Spacing="20">
+                                <TextBlock Text="Configurações do Sistema" FontSize="28"
+                                    FontWeight="Light"
+                                    Foreground="#222222" />
+                                <TextBlock
+                                    Text="Configure o certificado digital e os dados da sua empresa para emitir."
+                                    FontSize="14" Foreground="Gray" Margin="0,-15,0,10" />
+
+                                <Border Background="White" CornerRadius="8"
+                                    BoxShadow="0 4 15 0 #0A000000"
+                                    Padding="30">
+                                    <StackPanel Spacing="15">
+                                        <TextBlock Text="1. Certificado Digital (A1)"
+                                            FontWeight="Bold"
+                                            Foreground="#673AB7" FontSize="16" Margin="0,0,0,10" />
+
+                                        <Grid ColumnDefinitions="*, 20, 200"
+                                            RowDefinitions="Auto, Auto">
+                                            <StackPanel Grid.Row="0" Grid.Column="0">
+                                                <TextBlock Text="Caminho do Arquivo (.pfx)"
+                                                    FontWeight="SemiBold" Foreground="#555555"
+                                                    Margin="0,0,0,5" FontSize="13" />
+                                                <Grid ColumnDefinitions="*, Auto">
+                                                    <TextBox Grid.Column="0"
+                                                        Text="{Binding CaminhoCertificado}"
+                                                        Classes="Outline"
+                                                        Theme="{StaticResource OutlineTextBox}"
+                                                        Watermark="Nenhum arquivo selecionado..." />
+                                                    <Button Grid.Column="1"
+                                                        Command="{Binding ProcurarCertificadoCommand}"
+                                                        Classes="Outline" BorderBrush="#E0E0E0"
+                                                        Margin="5,0,0,0" Padding="12,5"
+                                                        ToolTip.Tip="Procurar arquivo...">
+                                                        <materialIcons:MaterialIcon
+                                                            Kind="FolderOpen"
+                                                            Foreground="#673AB7" Width="22"
+                                                            Height="22" />
+                                                    </Button>
+                                                </Grid>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="0" Grid.Column="2">
+                                                <TextBlock Text="UF da Empresa"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="#555555" Margin="0,0,0,5"
+                                                    FontSize="13" />
+                                                <ComboBox ItemsSource="{Binding ListaUFs}"
+                                                    SelectedItem="{Binding UfSelecionada}"
+                                                    HorizontalAlignment="Stretch"
+                                                    Theme="{StaticResource OutlineComboBox}" />
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="1" Grid.Column="0"
+                                                Margin="0,15,0,0">
+                                                <TextBlock Text="Senha do Certificado"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="#555555" Margin="0,0,0,5"
+                                                    FontSize="13" />
+                                                <TextBox Text="{Binding SenhaCertificado}"
+                                                    PasswordChar="*"
+                                                    Classes="Outline"
+                                                    Theme="{StaticResource OutlineTextBox}"
+                                                    Watermark="Digite a senha..." />
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Right"
+                                            Margin="0,10,0,0">
+                                            <Button Content="Consultar Dados na SEFAZ"
+                                                Command="{Binding ConsultarSefazCommand}"
+                                                Classes="Outline"
+                                                BorderBrush="#673AB7" Foreground="#673AB7"
+                                                Padding="20,10"
+                                                CornerRadius="8">
+                                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                                    <materialIcons:MaterialIcon Kind="CloudSearch"
+                                                        Width="20" Height="20" />
+                                                    <TextBlock Text="Consultar Dados na SEFAZ"
+                                                        VerticalAlignment="Center" />
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+
+                                        <TextBlock Text="Parâmetros de Emissão" FontWeight="Bold"
+                                            Foreground="#673AB7" FontSize="16" Margin="0,15,0,10" />
+                                        <Grid ColumnDefinitions="*, 20, *"
+                                            RowDefinitions="Auto, 15, Auto">
+
+                                            <StackPanel Grid.Row="0" Grid.Column="0">
+                                                <TextBlock Text="Ambiente Sefaz"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="#555" Margin="0,0,0,5" FontSize="13" />
+                                                <ComboBox
+                                                    SelectedIndex="{Binding AmbienteSelecionado, Converter={StaticResource IndexConverter}}"
+                                                    ItemsSource="{Binding ListaAmbientes}"
+                                                    HorizontalAlignment="Stretch"
+                                                    Theme="{StaticResource OutlineComboBox}" />
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="0" Grid.Column="2">
+                                                <TextBlock Text="Último Nº MDF-e Emitido"
+                                                    FontWeight="SemiBold" Foreground="#555"
+                                                    Margin="0,0,0,5"
+                                                    FontSize="13" />
+                                                <TextBox Text="{Binding UltimoNumeroConfig}"
+                                                    Classes="Outline"
+                                                    Theme="{StaticResource OutlineTextBox}"
+                                                    Watermark="Ex: 0" />
+                                                <TextBlock Text="O sistema usará este número + 1"
+                                                    FontSize="11" Foreground="Gray" />
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="2" Grid.Column="0">
+                                                <TextBlock Text="Tipo de Emitente"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="#555" Margin="0,0,0,5" FontSize="13" />
+                                                <ComboBox
+                                                    SelectedIndex="{Binding TipoEmitenteSelecionado, Converter={StaticResource IndexConverter}}"
+                                                    ItemsSource="{Binding ListaTiposEmitente}"
+                                                    HorizontalAlignment="Stretch"
+                                                    Theme="{StaticResource OutlineComboBox}" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Background="White" CornerRadius="8"
+                                    BoxShadow="0 4 15 0 #0A000000"
+                                    Padding="30">
+                                    <StackPanel Spacing="15">
+                                        <TextBlock Text="2. Dados do Emitente" FontWeight="Bold"
+                                            Foreground="#673AB7" FontSize="16" Margin="0,0,0,10" />
+
+                                        <Grid ColumnDefinitions="*, 20, 2*"
+                                            RowDefinitions="Auto, 15, Auto, 15, Auto">
+                                            <StackPanel Grid.Row="0" Grid.Column="0">
+                                                <TextBlock Text="CNPJ" FontWeight="SemiBold"
+                                                    Foreground="#555555" Margin="0,0,0,5"
+                                                    FontSize="13" />
+                                                <TextBox Text="{Binding CnpjEmitente}"
+                                                    Classes="Outline"
+                                                    Theme="{StaticResource OutlineTextBox}"
+                                                    IsReadOnly="True" Background="#F0F0F0" />
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="0" Grid.Column="2">
+                                                <TextBlock Text="Razão Social" FontWeight="SemiBold"
+                                                    Foreground="#555555" Margin="0,0,0,5"
+                                                    FontSize="13" />
+                                                <TextBox Text="{Binding RazaoSocialEmitente}"
+                                                    Classes="Outline"
+                                                    Theme="{StaticResource OutlineTextBox}" />
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="2" Grid.Column="0">
+                                                <TextBlock Text="Inscrição Estadual (IE)"
+                                                    FontWeight="SemiBold" Foreground="#555555"
+                                                    Margin="0,0,0,5" FontSize="13" />
+                                                <TextBox Text="{Binding IeEmitente}"
+                                                    Classes="Outline"
+                                                    Theme="{StaticResource OutlineTextBox}" />
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Row="2" Grid.Column="2">
+                                                <TextBlock Text="Logradouro" FontWeight="SemiBold"
+                                                    Foreground="#555555" Margin="0,0,0,5"
+                                                    FontSize="13" />
+                                                <TextBox Text="{Binding LogradouroEmitente}"
+                                                    Classes="Outline"
+                                                    Theme="{StaticResource OutlineTextBox}" />
+                                            </StackPanel>
+
+                                            <Grid Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3"
+                                                ColumnDefinitions="*, 20, *, 20, 2*">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Número" FontWeight="SemiBold"
+                                                        Foreground="#555555" Margin="0,0,0,5"
+                                                        FontSize="13" />
+                                                    <TextBox Text="{Binding NumeroEmitente}"
+                                                        Classes="Outline"
+                                                        Theme="{StaticResource OutlineTextBox}" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="Bairro" FontWeight="SemiBold"
+                                                        Foreground="#555555" Margin="0,0,0,5"
+                                                        FontSize="13" />
+                                                    <TextBox Text="{Binding BairroEmitente}"
+                                                        Classes="Outline"
+                                                        Theme="{StaticResource OutlineTextBox}" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="4">
+                                                    <TextBlock Text="Cidade" FontWeight="SemiBold"
+                                                        Foreground="#555555" Margin="0,0,0,5"
+                                                        FontSize="13" />
+                                                    <TextBox Text="{Binding CidadeEmitente}"
+                                                        Classes="Outline"
+                                                        Theme="{StaticResource OutlineTextBox}" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+
+                                <Button Content="Salvar Configurações"
+                                    Command="{Binding SalvarConfiguracoesCommand}" Classes="Primary"
+                                    Theme="{StaticResource SolidButton}" Background="#4CAF50"
+                                    HorizontalAlignment="Right" Padding="30,12" CornerRadius="20"
+                                    FontSize="15" />
+                            </StackPanel>
+
+                            <StackPanel IsVisible="{Binding IsWizardVisible}" Spacing="20">
+                                <TextBlock Text="Nova Emissão de MDF-e" FontSize="28"
+                                    FontWeight="Light"
+                                    Foreground="#222222" />
+                                <TextBlock
+                                    Text="Preencha os dados abaixo. Aperte ESC para cancelar."
+                                    FontSize="14" Foreground="Gray" Margin="0,-15,0,20" />
+
+                                <Border Background="White" CornerRadius="8"
+                                    BoxShadow="0 4 15 0 #10000000"
+                                    Padding="30">
+                                    <StackPanel Spacing="20">
+                                        <Grid ColumnDefinitions="*, *, *, *" Margin="0, 0, 0, 30">
+                                            <TextBlock Grid.Column="0" Text="1. Documentos"
+                                                FontWeight="{Binding IsPasso1, StringFormat='Bold|Normal'}"
+                                                Foreground="{Binding IsPasso1, StringFormat='#673AB7|Gray'}"
+                                                HorizontalAlignment="Center" />
+                                            <TextBlock Grid.Column="1" Text="2. Roteiro"
+                                                FontWeight="{Binding IsPasso2, StringFormat='Bold|Normal'}"
+                                                Foreground="{Binding IsPasso2, StringFormat='#673AB7|Gray'}"
+                                                HorizontalAlignment="Center" />
+                                            <TextBlock Grid.Column="2" Text="3. Transporte"
+                                                FontWeight="{Binding IsPasso3, StringFormat='Bold|Normal'}"
+                                                Foreground="{Binding IsPasso3, StringFormat='#673AB7|Gray'}"
+                                                HorizontalAlignment="Center" />
+                                            <TextBlock Grid.Column="3" Text="4. Emissão"
+                                                FontWeight="{Binding IsPasso4, StringFormat='Bold|Normal'}"
+                                                Foreground="{Binding IsPasso4, StringFormat='#673AB7|Gray'}"
+                                                HorizontalAlignment="Center" />
+                                        </Grid>
+
+                                        <Separator Background="#EEEEEE" Margin="0,-20,0,10" />
+
+                                        <StackPanel IsVisible="{Binding IsPasso1}" Spacing="20">
+                                            <StackPanel Spacing="15" Margin="0,0,0,20">
+                                                <TextBlock Text="Passo 2: Notas Fiscais (Carga)"
+                                                    FontSize="18" FontWeight="SemiBold"
+                                                    Foreground="#333" />
+                                                <TextBlock
+                                                    Text="Importe os arquivos XML das Notas Fiscais que compõem esta viagem. O sistema calculará o peso e o valor automaticamente."
+                                                    Foreground="#666" TextWrapping="Wrap"
+                                                    FontSize="14" />
+
+                                                <Button Content="Importar XMLs (NF-e)"
+                                                    Command="{Binding ImportarXmlCommand}"
+                                                    Classes="Primary"
+                                                    Theme="{StaticResource SolidButton}"
+                                                    Background="#2196F3" Padding="20,10"
+                                                    CornerRadius="8" />
+
+                                                <DataGrid ItemsSource="{Binding DocumentosFiscais}"
+                                                    AutoGenerateColumns="False" Height="150"
+                                                    BorderBrush="#E0E0E0" BorderThickness="1"
+                                                    CornerRadius="8" Margin="0,10,0,0">
+                                                    <DataGrid.Columns>
+                                                        <DataGridTextColumn Header="Chave de Acesso"
+                                                            Binding="{Binding Chave}" Width="*" />
+                                                        <DataGridTextColumn Header="Cidade Descarga"
+                                                            Binding="{Binding MunicipioDescarga}"
+                                                            Width="150" />
+                                                        <DataGridTextColumn Header="Valor (R$)"
+                                                            Binding="{Binding Valor}" Width="100" />
+                                                        <DataGridTextColumn Header="Peso (KG)"
+                                                            Binding="{Binding Peso}" Width="100" />
+                                                    </DataGrid.Columns>
+                                                </DataGrid>
+
+                                                <StackPanel Orientation="Horizontal" Spacing="20"
+                                                    HorizontalAlignment="Right" Margin="0,10,0,0">
+                                                    <TextBlock
+                                                        Text="{Binding PesoTotalCarga, StringFormat='Peso Total: {0:N2} KG'}"
+                                                        FontWeight="Bold" FontSize="15"
+                                                        Foreground="#333" />
+                                                    <TextBlock
+                                                        Text="{Binding ValorTotalCarga, StringFormat='Valor Total: R$ {0:N2}'}"
+                                                        FontWeight="Bold" FontSize="15"
+                                                        Foreground="#4CAF50" />
+                                                </StackPanel>
+
+                                                <Grid ColumnDefinitions="Auto, *, Auto"
+                                                    Margin="0, 30, 0, 0">
+                                                    <Button Grid.Column="0" Content="Cancelar (ESC)"
+                                                        Command="{Binding CancelarCommand}"
+                                                        Classes="Flat"
+                                                        Foreground="#F44336" FontWeight="SemiBold" />
+
+                                                    <StackPanel Grid.Column="2"
+                                                        Orientation="Horizontal"
+                                                        Spacing="10">
+                                                        <Button Content="Voltar"
+                                                            Command="{Binding VoltarCommand}"
+                                                            Classes="Flat"
+                                                            Foreground="Gray" Padding="20,10" />
+
+                                                        <Button Content="Avançar"
+                                                            Command="{Binding AvancarCommand}"
+                                                            Classes="Primary"
+                                                            Theme="{StaticResource SolidButton}"
+                                                            Padding="30,10"
+                                                            CornerRadius="20" />
+                                                    </StackPanel>
+                                                </Grid>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <StackPanel IsVisible="{Binding IsPasso2}" Spacing="20">
+                                            <StackPanel IsVisible="{Binding IsPasso2}" Spacing="20">
+                                                <TextBlock Text="Roteiro da Viagem" FontSize="18"
+                                                    FontWeight="SemiBold" Foreground="#333" />
+                                                <TextBlock
+                                                    Text="Confirme o percurso identificado pelos XMLs."
+                                                    Foreground="#666" FontSize="14"
+                                                    Margin="0,-15,0,10" />
+
+                                                <Grid ColumnDefinitions="*, 20, *"
+                                                    RowDefinitions="Auto, 20, Auto">
+                                                    <StackPanel Grid.Row="0" Grid.Column="0">
+                                                        <TextBlock Text="UF Carregamento (Início)"
+                                                            FontWeight="SemiBold" Foreground="#555"
+                                                            Margin="0,0,0,5" />
+                                                        <TextBox Text="{Binding UfCarregamento}"
+                                                            Classes="Outline"
+                                                            Theme="{StaticResource OutlineTextBox}" />
+                                                        <TextBlock
+                                                            Text="{Binding ResumoCidadesCarregamento}"
+                                                            FontSize="11" Foreground="#999"
+                                                            Margin="0,5,0,0"
+                                                            TextWrapping="Wrap" />
+                                                    </StackPanel>
+
+                                                    <StackPanel Grid.Row="0" Grid.Column="2">
+                                                        <TextBlock Text="UF Descarregamento (Fim)"
+                                                            FontWeight="SemiBold" Foreground="#555"
+                                                            Margin="0,0,0,5" />
+                                                        <TextBox Text="{Binding UfDescarregamento}"
+                                                            Classes="Outline"
+                                                            Theme="{StaticResource OutlineTextBox}" />
+                                                        <TextBlock
+                                                            Text="{Binding ResumoCidadesDescarregamento}"
+                                                            FontSize="11" Foreground="#999"
+                                                            Margin="0,5,0,0"
+                                                            TextWrapping="Wrap" />
+                                                    </StackPanel>
+
+                                                    <StackPanel Grid.Row="2" Grid.Column="0">
+                                                        <TextBlock Text="Data de Início"
+                                                            FontWeight="SemiBold" Foreground="#555"
+                                                            Margin="0,0,0,5" />
+                                                        <DatePicker
+                                                            SelectedDate="{Binding DataViagem}"
+                                                            HorizontalAlignment="Stretch" />
+                                                    </StackPanel>
+                                                </Grid>
+
+                                                <Grid ColumnDefinitions="Auto, *, Auto"
+                                                    Margin="0, 30, 0, 0">
+                                                    <Button Grid.Column="0" Content="Cancelar"
+                                                        Command="{Binding CancelarCommand}"
+                                                        Classes="Flat"
+                                                        Foreground="#F44336" />
+                                                    <StackPanel Grid.Column="2"
+                                                        Orientation="Horizontal"
+                                                        Spacing="10">
+                                                        <Button Content="Voltar"
+                                                            Command="{Binding VoltarCommand}"
+                                                            Classes="Flat"
+                                                            Foreground="Gray" />
+                                                        <Button Content="Avançar"
+                                                            Command="{Binding AvancarCommand}"
+                                                            Classes="Primary"
+                                                            Theme="{StaticResource SolidButton}"
+                                                            CornerRadius="20" Padding="30,10" />
+                                                    </StackPanel>
+                                                </Grid>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <StackPanel IsVisible="{Binding IsPasso3}" Spacing="20">
+                                            <TextBlock Text="Dados do Transporte" FontSize="18"
+                                                FontWeight="SemiBold" Margin="0,10,0,0" />
+
+                                            <TextBlock Text="Veículo de Tração" FontWeight="Bold"
+                                                Foreground="#673AB7" FontSize="15" Margin="0,10,0,0" />
+                                            <Grid ColumnDefinitions="*, 20, *" RowDefinitions="Auto">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Selecione a Placa"
+                                                        FontWeight="SemiBold" Foreground="#555555"
+                                                        Margin="0,0,0,5" FontSize="13" />
+                                                    <ComboBox ItemsSource="{Binding Veiculos}"
+                                                        SelectedItem="{Binding VeiculoSelecionado}"
+                                                        HorizontalAlignment="Stretch"
+                                                        PlaceholderText="Escolha um veículo..."
+                                                        Theme="{StaticResource OutlineComboBox}">
+                                                        <ComboBox.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock Text="{Binding Placa}" />
+                                                            </DataTemplate>
+                                                        </ComboBox.ItemTemplate>
+                                                    </ComboBox>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock
+                                                        Text="RNTRC (Preenchimento Automático)"
+                                                        FontWeight="SemiBold" Foreground="#555555"
+                                                        Margin="0,0,0,5" FontSize="13" />
+                                                    <TextBox
+                                                        Text="{Binding VeiculoSelecionado.Rntrc}"
+                                                        IsReadOnly="True" Background="#F0F0F0"
+                                                        Classes="Outline"
+                                                        Theme="{StaticResource OutlineTextBox}"
+                                                        Watermark="-" />
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <TextBlock Text="Condutor" FontWeight="Bold"
+                                                Foreground="#673AB7" FontSize="15" Margin="0,15,0,0" />
+                                            <Grid ColumnDefinitions="*, 20, 2*"
+                                                RowDefinitions="Auto">
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="Selecione o Condutor"
+                                                        FontWeight="SemiBold" Foreground="#555555"
+                                                        Margin="0,0,0,5" FontSize="13" />
+                                                    <ComboBox ItemsSource="{Binding Condutores}"
+                                                        SelectedItem="{Binding CondutorSelecionado}"
+                                                        HorizontalAlignment="Stretch"
+                                                        PlaceholderText="Escolha o motorista..."
+                                                        Theme="{StaticResource OutlineComboBox}">
+                                                        <ComboBox.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock Text="{Binding Nome}" />
+                                                            </DataTemplate>
+                                                        </ComboBox.ItemTemplate>
+                                                    </ComboBox>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="2">
+                                                    <TextBlock Text="CPF (Preenchimento Automático)"
+                                                        FontWeight="SemiBold" Foreground="#555555"
+                                                        Margin="0,0,0,5" FontSize="13" />
+                                                    <TextBox
+                                                        Text="{Binding CondutorSelecionado.Cpf}"
+                                                        IsReadOnly="True" Background="#F0F0F0"
+                                                        Classes="Outline"
+                                                        Theme="{StaticResource OutlineTextBox}"
+                                                        Watermark="-" />
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <Grid ColumnDefinitions="Auto, *, Auto"
+                                                Margin="0, 30, 0, 0">
+                                                <Button Grid.Column="0" Content="Cancelar (ESC)"
+                                                    Command="{Binding CancelarCommand}"
+                                                    Classes="Flat"
+                                                    Foreground="#F44336" FontWeight="SemiBold" />
+                                                <StackPanel Grid.Column="2" Orientation="Horizontal"
+                                                    Spacing="10">
+                                                    <Button Content="Voltar"
+                                                        Command="{Binding VoltarCommand}"
+                                                        Classes="Flat"
+                                                        Foreground="Gray" Padding="20,10" />
+                                                    <Button Content="Avançar para Emissão"
+                                                        Command="{Binding AvancarCommand}"
+                                                        Classes="Primary"
+                                                        Theme="{StaticResource SolidButton}"
+                                                        Padding="20,10"
+                                                        CornerRadius="20" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+
+                                        <StackPanel IsVisible="{Binding IsPasso4}" Spacing="20">
+                                            <TextBlock Text="Pronto para Emitir!" FontSize="18"
+                                                FontWeight="SemiBold" Margin="0,10,0,0" />
+                                            <TextBlock
+                                                Text="Confirme se os dados abaixo estão corretos."
+                                                FontSize="14" Foreground="Gray" Margin="0,-15,0,10" />
+
+                                            <Border Background="#F8F9FA" BorderBrush="#E0E0E0"
+                                                BorderThickness="1" CornerRadius="8" Padding="25">
+                                                <StackPanel Spacing="15">
+                                                    <TextBlock FontWeight="Medium"
+                                                        Foreground="#333333">
+                                                        <Run Text="Resumo: SP ➔ MG | 1 NF-e | " />
+                                                        <Run
+                                                            Text="{Binding VeiculoSelecionado.Placa, TargetNullValue='(Nenhum Veículo)'}"
+                                                            Foreground="#673AB7" FontWeight="Bold" />
+                                                        <Run Text=" | " />
+                                                        <Run
+                                                            Text="{Binding CondutorSelecionado.Nome, TargetNullValue='(Nenhum Condutor)'}"
+                                                            Foreground="#673AB7" FontWeight="Bold" />
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <Border Background="#FFF3E0" BorderBrush="#FFE0B2"
+                                                BorderThickness="1" CornerRadius="4" Padding="15">
+                                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                                    <materialIcons:MaterialIcon
+                                                        Kind="AlertCircleOutline"
+                                                        Foreground="#FF9800" Width="24" Height="24" />
+                                                    <TextBlock
+                                                        Text="O envio será feito em HOMOLOGAÇÃO."
+                                                        Foreground="#E65100"
+                                                        VerticalAlignment="Center" />
+                                                </StackPanel>
+                                            </Border>
+
+                                            <Grid ColumnDefinitions="Auto, *, Auto"
+                                                Margin="0, 20, 0, 0">
+                                                <Button Grid.Column="0" Content="Cancelar (ESC)"
+                                                    Command="{Binding CancelarCommand}"
+                                                    Classes="Flat"
+                                                    Foreground="#F44336" FontWeight="SemiBold" />
+                                                <StackPanel Grid.Column="2" Orientation="Horizontal"
+                                                    Spacing="15">
+                                                    <Button Content="Voltar"
+                                                        Command="{Binding VoltarCommand}"
+                                                        Classes="Flat"
+                                                        Foreground="Gray" Padding="20,10" />
+                                                    <Button Content="Emitir MDF-e agora"
+                                                        Command="{Binding EmitirMdfeCommand}"
+                                                        Theme="{StaticResource SolidButton}"
+                                                        Background="#4CAF50" Foreground="White"
+                                                        Padding="30,12" CornerRadius="25"
+                                                        FontSize="16"
+                                                        FontWeight="Bold" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <StackPanel IsVisible="{Binding IsVeiculos}" Spacing="20">
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Meus Veículos" FontSize="28"
+                                            FontWeight="Light"
+                                            Foreground="#222222" />
+                                        <TextBlock
+                                            Text="Gerencie a frota para usar o preenchimento automático."
+                                            FontSize="14" Foreground="Gray" Margin="0,5,0,0" />
+                                    </StackPanel>
+                                    <Button Grid.Column="1" Content="+ Novo Veículo"
+                                        Command="{Binding AbrirModalVeiculoCommand}"
+                                        Classes="Primary"
+                                        Theme="{StaticResource SolidButton}" Background="#673AB7"
+                                        CornerRadius="20" Padding="20,10" VerticalAlignment="Center" />
+                                </Grid>
+
+                                <Border Background="White" CornerRadius="8"
+                                    BoxShadow="0 2 10 0 #0A000000"
+                                    Margin="0,10,0,0" Padding="0,0,0,10">
+                                    <StackPanel>
+                                        <Border Background="#F8F9FA" Padding="20,15"
+                                            Margin="0,0,0,10">
+                                            <Grid ColumnDefinitions="2*, 3*, 2*, *">
+                                                <TextBlock Grid.Column="0" Text="PLACA"
+                                                    FontWeight="SemiBold" Foreground="#777777"
+                                                    FontSize="12" />
+                                                <TextBlock Grid.Column="1" Text="TIPO"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="#777777" FontSize="12" />
+                                                <TextBlock Grid.Column="2" Text="RNTRC"
+                                                    FontWeight="SemiBold" Foreground="#777777"
+                                                    FontSize="12" />
+                                                <TextBlock Grid.Column="3" Text="AÇÕES"
+                                                    FontWeight="SemiBold" Foreground="#777777"
+                                                    FontSize="12"
+                                                    HorizontalAlignment="Right" />
+                                            </Grid>
+                                        </Border>
+
+                                        <ItemsControl ItemsSource="{Binding Veiculos}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border BorderBrush="#EEEEEE"
+                                                        BorderThickness="0,0,0,1"
+                                                        Padding="20,10">
+                                                        <Grid ColumnDefinitions="2*, 3*, 2*, *">
+                                                            <StackPanel Grid.Column="0"
+                                                                Orientation="Horizontal"
+                                                                Spacing="10">
+                                                                <Border Background="#EDE7F6"
+                                                                    CornerRadius="4" Padding="5,2">
+                                                                    <TextBlock
+                                                                        Text="{Binding Placa}"
+                                                                        FontWeight="Bold"
+                                                                        Foreground="#673AB7"
+                                                                        VerticalAlignment="Center" />
+                                                                </Border>
+                                                            </StackPanel>
+                                                            <TextBlock Grid.Column="1"
+                                                                Text="{Binding Tipo}"
+                                                                VerticalAlignment="Center"
+                                                                Foreground="#333333" />
+                                                            <TextBlock Grid.Column="2"
+                                                                Text="{Binding Rntrc}"
+                                                                VerticalAlignment="Center"
+                                                                Foreground="#333333" />
+                                                            <StackPanel Grid.Column="3"
+                                                                Orientation="Horizontal" Spacing="5"
+                                                                HorizontalAlignment="Right">
+                                                                <Button Classes="Flat" Padding="5"
+                                                                    Foreground="#F44336">
+                                                                    <materialIcons:MaterialIcon
+                                                                        Kind="TrashCanOutline" />
+                                                                </Button>
+                                                            </StackPanel>
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <TextBlock Text="Nenhum veículo registado na frota."
+                                            IsVisible="{Binding !Veiculos.Count}" Foreground="Gray"
+                                            HorizontalAlignment="Center" Margin="0,30,0,20" />
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <StackPanel IsVisible="{Binding IsCondutores}" Spacing="20">
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Condutores" FontSize="28"
+                                            FontWeight="Light"
+                                            Foreground="#222222" />
+                                        <TextBlock
+                                            Text="Cadastre os motoristas responsáveis pelo transporte."
+                                            FontSize="14" Foreground="Gray" Margin="0,5,0,0" />
+                                    </StackPanel>
+                                    <Button Grid.Column="1" Content="+ Novo Condutor"
+                                        Command="{Binding AbrirModalCondutorCommand}"
+                                        Classes="Primary"
+                                        Theme="{StaticResource SolidButton}" Background="#673AB7"
+                                        CornerRadius="20" Padding="20,10" VerticalAlignment="Center" />
+                                </Grid>
+
+                                <Border Background="White" CornerRadius="8"
+                                    BoxShadow="0 2 10 0 #0A000000"
+                                    Margin="0,10,0,0" Padding="0,0,0,10">
+                                    <StackPanel>
+                                        <Border Background="#F8F9FA" Padding="20,15"
+                                            Margin="0,0,0,10">
+                                            <Grid ColumnDefinitions="3*, 2*, *">
+                                                <TextBlock Grid.Column="0" Text="NOME COMPLETO"
+                                                    FontWeight="SemiBold" Foreground="#777777"
+                                                    FontSize="12" />
+                                                <TextBlock Grid.Column="1" Text="CPF"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="#777777" FontSize="12" />
+                                                <TextBlock Grid.Column="2" Text="AÇÕES"
+                                                    FontWeight="SemiBold" Foreground="#777777"
+                                                    FontSize="12"
+                                                    HorizontalAlignment="Right" />
+                                            </Grid>
+                                        </Border>
+
+                                        <ItemsControl ItemsSource="{Binding Condutores}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border BorderBrush="#EEEEEE"
+                                                        BorderThickness="0,0,0,1"
+                                                        Padding="20,10">
+                                                        <Grid ColumnDefinitions="3*, 2*, *">
+                                                            <StackPanel Grid.Column="0"
+                                                                Orientation="Horizontal"
+                                                                Spacing="15">
+                                                                <materialIcons:MaterialIcon
+                                                                    Kind="AccountCircle"
+                                                                    Foreground="#BDBDBD" Width="30"
+                                                                    Height="30" />
+                                                                <TextBlock Text="{Binding Nome}"
+                                                                    FontWeight="SemiBold"
+                                                                    VerticalAlignment="Center"
+                                                                    Foreground="#333333" />
+                                                            </StackPanel>
+                                                            <TextBlock Grid.Column="1"
+                                                                Text="{Binding Cpf}"
+                                                                VerticalAlignment="Center"
+                                                                Foreground="Gray" />
+                                                            <StackPanel Grid.Column="2"
+                                                                Orientation="Horizontal" Spacing="5"
+                                                                HorizontalAlignment="Right">
+                                                                <Button Classes="Flat" Padding="5"
+                                                                    Foreground="#F44336">
+                                                                    <materialIcons:MaterialIcon
+                                                                        Kind="TrashCanOutline" />
+                                                                </Button>
+                                                            </StackPanel>
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <TextBlock Text="Nenhum condutor registado."
+                                            IsVisible="{Binding !Condutores.Count}"
+                                            Foreground="Gray"
+                                            HorizontalAlignment="Center" Margin="0,30,0,20" />
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <StackPanel IsVisible="{Binding IsHistorico}" Spacing="20">
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="MDF-es Emitidos" FontSize="28"
+                                            FontWeight="Light"
+                                            Foreground="#222222" />
+                                        <TextBlock
+                                            Text="Histórico de manifestos gerados pelo sistema."
+                                            FontSize="14" Foreground="Gray" Margin="0,5,0,0" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                        Spacing="10"
+                                        VerticalAlignment="Center">
+                                        <TextBox Classes="Outline"
+                                            Theme="{StaticResource OutlineTextBox}"
+                                            Watermark="Pesquisar placa ou número..." Width="250" />
+                                        <Button Classes="Outline" Foreground="#673AB7"
+                                            BorderBrush="#673AB7"
+                                            Padding="15,8">
+                                            <materialIcons:MaterialIcon Kind="Magnify" />
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Border Background="White" CornerRadius="8"
+                                    BoxShadow="0 2 10 0 #0A000000"
+                                    Margin="0,10,0,0" Padding="0,0,0,10">
+                                    <StackPanel>
+                                        <Border Background="#F8F9FA" Padding="20,15"
+                                            Margin="0,0,0,10">
+                                            <Grid ColumnDefinitions="*, 2*, 2*, 2*, 1.5*">
+                                                <TextBlock Grid.Column="0" Text="Nº MDF-e"
+                                                    FontWeight="SemiBold" Foreground="#777777"
+                                                    FontSize="12" />
+                                                <TextBlock Grid.Column="1" Text="DATA DA EMISSÃO"
+                                                    FontWeight="SemiBold" Foreground="#777777"
+                                                    FontSize="12" />
+                                                <TextBlock Grid.Column="2" Text="VEÍCULO"
+                                                    FontWeight="SemiBold" Foreground="#777777"
+                                                    FontSize="12" />
+                                                <TextBlock Grid.Column="3" Text="ESTADO"
+                                                    FontWeight="SemiBold" Foreground="#777777"
+                                                    FontSize="12" />
+                                                <TextBlock Grid.Column="4" Text="ACÇÕES"
+                                                    FontWeight="SemiBold" Foreground="#777777"
+                                                    FontSize="12"
+                                                    HorizontalAlignment="Right" />
+                                            </Grid>
+                                        </Border>
+
+                                        <Border BorderBrush="#EEEEEE" BorderThickness="0,0,0,1"
+                                            Padding="20,10">
+                                            <Grid ColumnDefinitions="*, 2*, 2*, 2*, 1.5*">
+                                                <TextBlock Grid.Column="0" Text="1054"
+                                                    FontWeight="Bold"
+                                                    VerticalAlignment="Center" Foreground="#333333" />
+                                                <TextBlock Grid.Column="1" Text="24/10/2023 14:30"
+                                                    VerticalAlignment="Center" Foreground="Gray" />
+                                                <StackPanel Grid.Column="2" Orientation="Horizontal"
+                                                    Spacing="8">
+                                                    <materialIcons:MaterialIcon Kind="TruckOutline"
+                                                        Foreground="Gray" Width="18" />
+                                                    <TextBlock Text="ABC-1234"
+                                                        VerticalAlignment="Center"
+                                                        Foreground="#333333" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="3" Orientation="Horizontal">
+                                                    <Border Background="#E8F5E9" CornerRadius="4"
+                                                        Padding="8,4">
+                                                        <TextBlock Text="Autorizado"
+                                                            Foreground="#4CAF50"
+                                                            FontWeight="SemiBold" FontSize="12" />
+                                                    </Border>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="4" Orientation="Horizontal"
+                                                    Spacing="5" HorizontalAlignment="Right">
+                                                    <Button Classes="Flat" Padding="5"
+                                                        Foreground="#E53935"
+                                                        ToolTip.Tip="Descarregar PDF">
+                                                        <materialIcons:MaterialIcon
+                                                            Kind="FilePdfBox"
+                                                            Width="22" Height="22" />
+                                                    </Button>
+                                                    <Button Classes="Flat" Padding="5"
+                                                        Foreground="#1E88E5"
+                                                        ToolTip.Tip="Descarregar XML">
+                                                        <materialIcons:MaterialIcon Kind="Xml"
+                                                            Width="22"
+                                                            Height="22" />
+                                                    </Button>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                        </Panel>
+                    </Border>
+                </ScrollViewer>
             </Border>
         </Grid>
 

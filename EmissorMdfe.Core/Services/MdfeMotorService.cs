@@ -20,8 +20,21 @@ public class MdfeMotorService
         string ufDestino,
         Veiculo veiculo,
         Condutor condutor,
-        List<DocumentoFiscal> documentos)
+        List<DocumentoFiscal> documentos,
+        int numeroMdfe
+        )
     {
+        // 1. Agrupa os Municípios de Carregamento (Únicos)
+        var municipiosCarregamento = documentos
+            .Select(d => new { d.IbgeCarregamento, d.MunicipioCarregamento })
+            .Distinct()
+            .ToList();
+
+        // Se não achou no XML (ex: nota manual), usa a da empresa como fallback
+        if (!municipiosCarregamento.Any())
+        {
+            municipiosCarregamento.Add(new { IbgeCarregamento = config.CodigoIbgeCidade, MunicipioCarregamento = config.CidadeEmitente });
+        }
         // ==========================================
         // 1. INICIALIZA O OBJETO MDF-E
         // ==========================================
@@ -38,12 +51,12 @@ public class MdfeMotorService
                 Ide = new MDFeIde
                 {
                     CUF = (Estado)Enum.Parse(typeof(Estado), config.UfEmitente),
-                    TpAmb = config.Ambiente == "Producao" ? TipoAmbiente.Producao : TipoAmbiente.Homologacao,
-                    TpEmit = MDFeTipoEmitente.TransportadorCargaPropria,
+                    TpAmb = config.Ambiente == 1 ? TipoAmbiente.Producao : TipoAmbiente.Homologacao,
+                    TpEmit = (MDFeTipoEmitente)config.TipoEmitente,
                     TpTransp = MDFeTpTransp.CTC,
                     Mod = ModeloDocumento.MDFe,
                     Serie = 1,
-                    NMDF = 1, // FUTURO: Buscar do SQLite
+                    NMDF = numeroMdfe, // FUTURO: Buscar do SQLite
                     CMDF = new Random().Next(10000000, 99999999), // Agora exige 'int'
                     CDV = 0,
                     Modal = MDFeModal.Rodoviario,
@@ -53,14 +66,11 @@ public class MdfeMotorService
                     VerProc = "CoreMDFe_1.0",
                     UFIni = (Estado)Enum.Parse(typeof(Estado), ufOrigem),
                     UFFim = (Estado)Enum.Parse(typeof(Estado), ufDestino),
-                    InfMunCarrega = new List<MDFeInfMunCarrega>
+                    InfMunCarrega = municipiosCarregamento.Select(m => new MDFeInfMunCarrega
                     {
-                        new MDFeInfMunCarrega
-                        {
-                            CMunCarrega = config.CodigoIbgeCidade.ToString(),
-                            XMunCarrega = config.CidadeEmitente
-                        }
-                    }
+                        CMunCarrega = m.IbgeCarregamento.ToString(),
+                        XMunCarrega = m.MunicipioCarregamento
+                    }).ToList()
                 },
 
                 // ==========================================
